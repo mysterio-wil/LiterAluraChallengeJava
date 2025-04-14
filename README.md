@@ -21,7 +21,13 @@ LiterAluraChallengeJava/
 │   │   │           └── LiterAluraChallengeJava/
 │   │   │               ├── principal/
 │   │   │               ├── model/
+│   │   │               │   ├── Datos.java
+│   │   │               │   ├── DatosLibros.java
+│   │   │               │   └── DatosAutor.java
 │   │   │               └── service/
+│   │   │                   ├── IConvierteDatos.java
+│   │   │                   ├── ConvierteDatos.java
+│   │   │                   └── ConsumoAPI.java
 │   │   └── resources/
 │   └── test/
 ```
@@ -42,6 +48,14 @@ LiterAluraChallengeJava/
 - [x] Creación de DatosAutor para mapear información de autores
 - [x] Creación de DatosLibros para mapear información de libros
 - [x] Creación de Datos para mapear la respuesta general de la API
+
+### Fase 4: Conversión de Records a Clases Java
+- [x] Transformación de DatosAutor a clase Java con getters y setters
+- [x] Transformación de DatosLibros a clase Java con getters y setters
+- [x] Transformación de Datos a clase Java con getters y setters
+- [x] Implementación de métodos toString() para mejor representación
+- [x] Adición de constructores vacíos para Jackson
+- [x] Mantenimiento de anotaciones JSON para mapeo de datos
 
 ### Próximos Pasos
 - [ ] Implementación de la persistencia de datos
