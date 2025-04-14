@@ -20,6 +20,7 @@ LiterAluraChallengeJava/
 │   │   │       └── alura/
 │   │   │           └── LiterAluraChallengeJava/
 │   │   │               ├── principal/
+│   │   │               │   └── Principal.java
 │   │   │               ├── model/
 │   │   │               │   ├── Datos.java
 │   │   │               │   ├── DatosLibros.java
@@ -57,10 +58,20 @@ LiterAluraChallengeJava/
 - [x] Adición de constructores vacíos para Jackson
 - [x] Mantenimiento de anotaciones JSON para mapeo de datos
 
+### Fase 5: Implementación de la Interfaz de Usuario
+- [x] Creación de la clase Principal con menú interactivo
+- [x] Implementación de CommandLineRunner en la clase principal
+- [x] Desarrollo de la funcionalidad de búsqueda de libros
+- [x] Manejo de excepciones y validación de entradas
+- [ ] Implementación de listado de libros registrados
+- [ ] Implementación de listado de autores registrados
+- [ ] Implementación de búsqueda de autores por año
+- [ ] Implementación de filtrado por idioma
+
 ### Próximos Pasos
 - [ ] Implementación de la persistencia de datos
-- [ ] Desarrollo de la interfaz de usuario por consola
-- [ ] Implementación de las funcionalidades de búsqueda y filtrado
+- [ ] Completar las funcionalidades restantes del menú
+- [ ] Implementar pruebas unitarias y de integración
 
 ## API Utilizada
 - Gutendex API: https://gutendex.com/books/
