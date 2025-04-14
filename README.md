@@ -1,83 +1,72 @@
 # LiterAlura Challenge Java
 
 ## Descripción
-LiterAlura es una aplicación de consola en Java que permite buscar, catalogar y gestionar libros a través de la API Gutendex, ofreciendo funcionalidades como búsqueda de libros, listado de autores, filtrado por idioma y consulta de autores por año específico.
+LiterAlura es una aplicación Java que permite buscar y gestionar información sobre libros y autores utilizando la API de Gutendex. La aplicación permite realizar búsquedas de libros, almacenar información en una base de datos y realizar consultas específicas sobre autores y libros.
+
+## Características
+- Búsqueda de libros por título
+- Almacenamiento de información de libros y autores en base de datos
+- Listado de libros registrados
+- Listado de autores registrados
+- Búsqueda de autores vivos en un año específico
+- Filtrado de libros por idioma
 
 ## Tecnologías Utilizadas
-- Java 21
-- Spring Boot 3.4.4
+- Java 17
+- Spring Boot
+- Spring Data JPA
+- H2 Database
+- Jackson (para mapeo JSON)
 - Maven
-- Jackson (para manejo de JSON)
-- PostgreSQL (base de datos)
 
 ## Estructura del Proyecto
 ```
-LiterAluraChallengeJava/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/
-│   │   │       └── alura/
-│   │   │           └── LiterAluraChallengeJava/
-│   │   │               ├── principal/
-│   │   │               │   └── Principal.java
-│   │   │               ├── model/
-│   │   │               │   ├── Datos.java
-│   │   │               │   ├── DatosLibros.java
-│   │   │               │   └── DatosAutor.java
-│   │   │               └── service/
-│   │   │                   ├── IConvierteDatos.java
-│   │   │                   ├── ConvierteDatos.java
-│   │   │                   └── ConsumoAPI.java
-│   │   └── resources/
-│   └── test/
+src/
+├── main/
+│   ├── java/
+│   │   └── com/alura/LiterAluraChallengeJava/
+│   │       ├── model/           # Entidades y DTOs
+│   │       ├── repository/      # Repositorios JPA
+│   │       ├── service/         # Servicios y utilidades
+│   │       └── principal/       # Clase principal de la aplicación
+│   └── resources/
+│       └── application.properties
 ```
 
-## Avances del Proyecto
+## Entidades Principales
+- `Autor`: Representa un autor con su nombre, fecha de nacimiento y fecha de fallecimiento
+- `Libro`: Representa un libro con su título, idioma, número de descargas y relación con el autor
 
-### Fase 1: Configuración Inicial
-- [x] Creación del proyecto Spring Boot
-- [x] Configuración de dependencias en pom.xml
-- [x] Establecimiento de la estructura de directorios
+## Funcionalidades Implementadas
+1. **Búsqueda de Libros**
+   - Permite buscar libros por título en la API de Gutendex
+   - Almacena automáticamente la información del libro y su autor
 
-### Fase 2: Implementación del Cliente HTTP
-- [x] Creación de la interfaz IConvierteDatos
-- [x] Implementación de ConvierteDatos con Jackson
-- [x] Desarrollo de ConsumoAPI para peticiones HTTP
+2. **Gestión de Autores**
+   - Almacena información de autores
+   - Permite buscar autores vivos en un año específico
+   - Evita duplicados de autores en la base de datos
 
-### Fase 3: Mapeo de Datos JSON
-- [x] Creación de DatosAutor para mapear información de autores
-- [x] Creación de DatosLibros para mapear información de libros
-- [x] Creación de Datos para mapear la respuesta general de la API
+3. **Gestión de Libros**
+   - Almacena información de libros
+   - Permite filtrar libros por idioma
+   - Muestra información detallada de cada libro
 
-### Fase 4: Conversión de Records a Clases Java
-- [x] Transformación de DatosAutor a clase Java con getters y setters
-- [x] Transformación de DatosLibros a clase Java con getters y setters
-- [x] Transformación de Datos a clase Java con getters y setters
-- [x] Implementación de métodos toString() para mejor representación
-- [x] Adición de constructores vacíos para Jackson
-- [x] Mantenimiento de anotaciones JSON para mapeo de datos
+## Cómo Usar
+1. Ejecutar la aplicación
+2. Seleccionar una opción del menú:
+   - 1: Buscar libro por título
+   - 2: Listar libros registrados
+   - 3: Listar autores registrados
+   - 4: Listar autores vivos en un año específico
+   - 5: Listar libros por idioma
+   - 0: Salir
 
-### Fase 5: Implementación de la Interfaz de Usuario
-- [x] Creación de la clase Principal con menú interactivo
-- [x] Implementación de CommandLineRunner en la clase principal
-- [x] Desarrollo de la funcionalidad de búsqueda de libros
-- [x] Manejo de excepciones y validación de entradas
-- [ ] Implementación de listado de libros registrados
-- [ ] Implementación de listado de autores registrados
-- [ ] Implementación de búsqueda de autores por año
-- [ ] Implementación de filtrado por idioma
+## Configuración
+La aplicación utiliza una base de datos H2 en memoria. No se requiere configuración adicional para ejecutar la aplicación.
 
-### Próximos Pasos
-- [ ] Implementación de la persistencia de datos
-- [ ] Completar las funcionalidades restantes del menú
-- [ ] Implementar pruebas unitarias y de integración
-
-## API Utilizada
-- Gutendex API: https://gutendex.com/books/
-- Documentación: https://github.com/garethbjohnson/gutendex
-
-## Requisitos
-- Java 21 o superior
-- Maven
-- PostgreSQL (opcional para desarrollo) 
+## Próximos Pasos
+- Implementar validaciones adicionales
+- Mejorar el manejo de errores
+- Agregar más funcionalidades de búsqueda
+- Implementar interfaz gráfica 
