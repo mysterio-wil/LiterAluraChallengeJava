@@ -12,11 +12,12 @@ LiterAlura es una aplicación Java que permite buscar y gestionar información s
 - Filtrado de libros por idioma
 
 ## Tecnologías Utilizadas
-- Java 17
-- Spring Boot
+- Java 21
+- Spring Boot 3.4.4
 - Spring Data JPA
-- H2 Database
-- Jackson (para mapeo JSON)
+- H2 Database (base de datos en memoria)
+- PostgreSQL (base de datos opcional)
+- Lombok (para reducir código boilerplate)
 - Maven
 
 ## Estructura del Proyecto
@@ -41,11 +42,12 @@ src/
 1. **Búsqueda de Libros**
    - Permite buscar libros por título en la API de Gutendex
    - Almacena automáticamente la información del libro y su autor
+   - Evita duplicados de autores en la base de datos
 
 2. **Gestión de Autores**
    - Almacena información de autores
    - Permite buscar autores vivos en un año específico
-   - Evita duplicados de autores en la base de datos
+   - Muestra información detallada de cada autor
 
 3. **Gestión de Libros**
    - Almacena información de libros
@@ -63,10 +65,21 @@ src/
    - 0: Salir
 
 ## Configuración
-La aplicación utiliza una base de datos H2 en memoria. No se requiere configuración adicional para ejecutar la aplicación.
+La aplicación utiliza una base de datos H2 en memoria por defecto. Para usar PostgreSQL:
+
+1. Configurar la conexión en `application.properties`:
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/literalura
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contraseña
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+```
+
+2. Asegurarse de que PostgreSQL esté instalado y ejecutándose
 
 ## Próximos Pasos
 - Implementar validaciones adicionales
 - Mejorar el manejo de errores
 - Agregar más funcionalidades de búsqueda
-- Implementar interfaz gráfica 
+- Implementar interfaz gráfica
+- Agregar pruebas unitarias y de integración 
