@@ -1,88 +1,85 @@
 # LiterAlura Challenge Java
 
 ## Descripción
-LiterAlura es una aplicación Java que permite explorar y gestionar un catálogo de libros y autores utilizando la API de Gutendex. La aplicación permite buscar libros, listar autores, y realizar búsquedas específicas por idioma o año.
+LiterAlura es una aplicación Java que permite explorar y gestionar un catálogo de libros y autores. La aplicación se conecta a la API de Gutendex para obtener información sobre libros y autores, y almacena esta información en una base de datos MySQL para su posterior consulta.
 
-## Características
+## Checklist de Funcionalidades
+- [x] Búsqueda de libros por título
+- [x] Listado de libros registrados
+- [x] Listado de autores registrados
+- [x] Búsqueda de autores vivos en un año específico
+- [x] Listado de libros por idioma
+- [x] Estadísticas de libros por idioma
+- [x] Persistencia de datos en base de datos MySQL
+- [ ] Implementar sistema de favoritos
+- [ ] Agregar funcionalidad de exportación de datos
+- [ ] Implementar búsqueda avanzada por múltiples criterios
+- [ ] Agregar sistema de recomendaciones basado en preferencias
+
+## Características Implementadas
 - Búsqueda de libros por título
 - Listado de libros registrados
 - Listado de autores registrados
 - Búsqueda de autores vivos en un año específico
-- Búsqueda de libros por idioma
-- Persistencia de datos en base de datos H2
-- Interfaz de línea de comandos intuitiva
-
-## Tecnologías Utilizadas
-- Java 17
-- Spring Boot
-- Spring Data JPA
-- H2 Database
-- Maven
-- Jackson para procesamiento de JSON
-- Jansi para colores en la consola
+- Listado de libros por idioma
+- Estadísticas de libros por idioma
+- Persistencia de datos en base de datos MySQL
 
 ## Requisitos
-- Java 17 o superior
+- Java 21 o superior
+- MySQL 8.0 o superior
 - Maven 3.9.9 o superior
-- Conexión a internet para acceder a la API de Gutendex
 
 ## Configuración
 1. Clonar el repositorio
-2. Asegurarse de tener Java 17 instalado
-3. Configurar las variables de entorno si es necesario
-4. Compilar el proyecto con Maven:
-   ```bash
-   mvn clean install
-   ```
-
-## Ejecución
-Para ejecutar la aplicación:
-```bash
-mvn spring-boot:run
-```
+2. Configurar la base de datos MySQL:
+   - Crear una base de datos llamada `literalura`
+   - Asegurarse de que el usuario `root` tenga acceso con la contraseña configurada
+3. Las credenciales de la base de datos se configuran en `src/main/resources/application.properties`
 
 ## Uso
-La aplicación presenta un menú interactivo con las siguientes opciones:
-1. Buscar libro por título
-2. Listar libros registrados
-3. Listar autores registrados
-4. Listar autores vivos en un año
-5. Listar libros por idioma
-0. Salir
-
-## Base de Datos
-- La aplicación utiliza H2 Database en memoria
-- La consola H2 está disponible en: http://localhost:8081/h2-console
-- Credenciales:
-  - URL: jdbc:h2:mem:literalura
-  - Usuario: sa
-  - Contraseña: (vacía)
+1. Ejecutar la aplicación:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+2. Seguir las instrucciones en el menú interactivo:
+   - Opción 1: Buscar libro por título
+   - Opción 2: Listar libros registrados
+   - Opción 3: Listar autores registrados
+   - Opción 4: Listar autores vivos en un año específico
+   - Opción 5: Listar libros por idioma
+   - Opción 6: Mostrar estadísticas de idiomas
+   - Opción 0: Salir
 
 ## Estructura del Proyecto
 ```
-src/main/java/com/alura/LiterAluraChallengeJava/
-├── model/
-│   ├── Autor.java
-│   └── Libro.java
-├── repository/
-│   ├── AutorRepository.java
-│   └── LibroRepository.java
-├── service/
-│   ├── AutorService.java
-│   └── LibroService.java
-├── dto/
-│   ├── AutorDTO.java
-│   └── LibroDTO.java
-└── LiterAluraApplication.java
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── alura/
+│   │           └── LiterAluraChallengeJava/
+│   │               ├── model/
+│   │               │   ├── Autor.java
+│   │               │   └── Libro.java
+│   │               ├── repository/
+│   │               │   ├── AutorRepository.java
+│   │               │   └── LibroRepository.java
+│   │               ├── service/
+│   │               │   └── ConsumoAPI.java
+│   │               └── LiterAluraChallengeJavaApplication.java
+│   └── resources/
+│       └── application.properties
 ```
 
-## Contribución
-Las contribuciones son bienvenidas. Por favor, asegúrate de:
-1. Hacer fork del proyecto
-2. Crear una rama para tu feature
-3. Hacer commit de tus cambios
-4. Hacer push a la rama
-5. Abrir un Pull Request
+## Tecnologías Utilizadas
+- Spring Boot 3.4.4
+- Spring Data JPA
+- MySQL
+- Jackson para procesamiento JSON
+- Maven para gestión de dependencias
 
-## Licencia
-Este proyecto está bajo la Licencia MIT. 
+## Notas
+- Los datos se persisten automáticamente en la base de datos MySQL
+- La aplicación mantiene un registro de libros y autores consultados
+- Se pueden realizar búsquedas históricas de autores vivos en años específicos 

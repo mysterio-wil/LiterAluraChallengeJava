@@ -90,15 +90,58 @@ public class Principal {
      */
     private void buscarLibroPorTitulo() {
         System.out.println("Ingrese el nombre del libro que desea buscar:");
-        var tituloLibro = teclado.nextLine();
+        var tituloLibro = teclado.nextLine().trim();
+        
+        // Primera verificación: buscar libros similares
+        List<Libro> librosSimilares = libroRepository.findByTituloSimilar(tituloLibro);
+        if (!librosSimilares.isEmpty()) {
+            System.out.println("\nSe encontraron libros similares en la base de datos:");
+            librosSimilares.forEach(libro -> {
+                System.out.println("\nTítulo: " + libro.getTitulo());
+                System.out.println("Autor: " + libro.getAutor().getNombre());
+                System.out.println("Idioma: " + libro.getIdioma());
+                System.out.println("Número de descargas: " + libro.getNumeroDescargas());
+                System.out.println("-------------------");
+            });
+            
+            System.out.println("\n¿Desea buscar otro libro? (s/n)");
+            String respuesta = teclado.nextLine().toLowerCase();
+            if (respuesta.equals("s")) {
+                buscarLibroPorTitulo();
+            }
+            return;
+        }
+        
+        System.out.println("\nBuscando libro en la API de Gutendex...");
         var json = consumoAPI.obtenerDatos("?search=" + tituloLibro.replace(" ", "+"));
         try {
             Datos datos = conversor.obtenerDatos(json, Datos.class);
             if (datos.getLibros().isEmpty()) {
                 System.out.println("No se encontraron libros con ese título.");
+                System.out.println("\n¿Desea intentar con otro título? (s/n)");
+                String respuesta = teclado.nextLine().toLowerCase();
+                if (respuesta.equals("s")) {
+                    buscarLibroPorTitulo();
+                }
             } else {
                 DatosLibros libroBuscado = datos.getLibros().get(0);
                 DatosAutor autorLibro = libroBuscado.getAutores().get(0);
+                
+                // Verificación final: buscar por título y autor exactos
+                Optional<Libro> libroExistente = libroRepository.findByTituloYAutor(
+                    libroBuscado.getTitulo(),
+                    autorLibro.getNombre()
+                );
+                
+                if (libroExistente.isPresent()) {
+                    System.out.println("\nEl libro ya existe en la base de datos:");
+                    Libro libro = libroExistente.get();
+                    System.out.println("Título: " + libro.getTitulo());
+                    System.out.println("Autor: " + libro.getAutor().getNombre());
+                    System.out.println("Idioma: " + libro.getIdioma());
+                    System.out.println("Número de descargas: " + libro.getNumeroDescargas());
+                    return;
+                }
                 
                 // Buscar si el autor ya existe
                 Optional<Autor> autorOptional = autorRepository.findByNombre(autorLibro.getNombre());
@@ -106,6 +149,7 @@ public class Principal {
                 
                 if (autorOptional.isPresent()) {
                     autor = autorOptional.get();
+                    System.out.println("\nAutor encontrado en la base de datos.");
                 } else {
                     autor = new Autor(
                             autorLibro.getNombre(),
@@ -113,6 +157,7 @@ public class Principal {
                             autorLibro.getFechaFallecimiento()
                     );
                     autorRepository.save(autor);
+                    System.out.println("\nNuevo autor registrado.");
                 }
                 
                 // Crear y guardar el libro
@@ -129,9 +174,20 @@ public class Principal {
                 System.out.println("Autor: " + autor.getNombre());
                 System.out.println("Idioma: " + libro.getIdioma());
                 System.out.println("Número de descargas: " + libro.getNumeroDescargas());
+                
+                System.out.println("\n¿Desea buscar otro libro? (s/n)");
+                String respuesta = teclado.nextLine().toLowerCase();
+                if (respuesta.equals("s")) {
+                    buscarLibroPorTitulo();
+                }
             }
         } catch (Exception e) {
             System.out.println("Error al procesar los datos: " + e.getMessage());
+            System.out.println("\n¿Desea intentar de nuevo? (s/n)");
+            String respuesta = teclado.nextLine().toLowerCase();
+            if (respuesta.equals("s")) {
+                buscarLibroPorTitulo();
+            }
         }
     }
 
