@@ -1,85 +1,88 @@
 # LiterAlura Challenge Java
 
 ## Descripción
-LiterAlura es una aplicación Java que permite buscar y gestionar información sobre libros y autores utilizando la API de Gutendex. La aplicación permite realizar búsquedas de libros, almacenar información en una base de datos y realizar consultas específicas sobre autores y libros.
+LiterAlura es una aplicación Java que permite explorar y gestionar un catálogo de libros y autores utilizando la API de Gutendex. La aplicación permite buscar libros, listar autores, y realizar búsquedas específicas por idioma o año.
 
 ## Características
 - Búsqueda de libros por título
-- Almacenamiento de información de libros y autores en base de datos
 - Listado de libros registrados
 - Listado de autores registrados
 - Búsqueda de autores vivos en un año específico
-- Filtrado de libros por idioma
+- Búsqueda de libros por idioma
+- Persistencia de datos en base de datos H2
+- Interfaz de línea de comandos intuitiva
 
 ## Tecnologías Utilizadas
-- Java 21
-- Spring Boot 3.4.4
+- Java 17
+- Spring Boot
 - Spring Data JPA
-- H2 Database (base de datos en memoria)
-- PostgreSQL (base de datos opcional)
-- Lombok (para reducir código boilerplate)
+- H2 Database
 - Maven
+- Jackson para procesamiento de JSON
+- Jansi para colores en la consola
+
+## Requisitos
+- Java 17 o superior
+- Maven 3.9.9 o superior
+- Conexión a internet para acceder a la API de Gutendex
+
+## Configuración
+1. Clonar el repositorio
+2. Asegurarse de tener Java 17 instalado
+3. Configurar las variables de entorno si es necesario
+4. Compilar el proyecto con Maven:
+   ```bash
+   mvn clean install
+   ```
+
+## Ejecución
+Para ejecutar la aplicación:
+```bash
+mvn spring-boot:run
+```
+
+## Uso
+La aplicación presenta un menú interactivo con las siguientes opciones:
+1. Buscar libro por título
+2. Listar libros registrados
+3. Listar autores registrados
+4. Listar autores vivos en un año
+5. Listar libros por idioma
+0. Salir
+
+## Base de Datos
+- La aplicación utiliza H2 Database en memoria
+- La consola H2 está disponible en: http://localhost:8081/h2-console
+- Credenciales:
+  - URL: jdbc:h2:mem:literalura
+  - Usuario: sa
+  - Contraseña: (vacía)
 
 ## Estructura del Proyecto
 ```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/alura/LiterAluraChallengeJava/
-│   │       ├── model/           # Entidades y DTOs
-│   │       ├── repository/      # Repositorios JPA
-│   │       ├── service/         # Servicios y utilidades
-│   │       └── principal/       # Clase principal de la aplicación
-│   └── resources/
-│       └── application.properties
+src/main/java/com/alura/LiterAluraChallengeJava/
+├── model/
+│   ├── Autor.java
+│   └── Libro.java
+├── repository/
+│   ├── AutorRepository.java
+│   └── LibroRepository.java
+├── service/
+│   ├── AutorService.java
+│   └── LibroService.java
+├── dto/
+│   ├── AutorDTO.java
+│   └── LibroDTO.java
+└── LiterAluraApplication.java
 ```
 
-## Entidades Principales
-- `Autor`: Representa un autor con su nombre, fecha de nacimiento y fecha de fallecimiento
-- `Libro`: Representa un libro con su título, idioma, número de descargas y relación con el autor
+## Contribución
+Las contribuciones son bienvenidas. Por favor, asegúrate de:
+1. Hacer fork del proyecto
+2. Crear una rama para tu feature
+3. Hacer commit de tus cambios
+4. Hacer push a la rama
+5. Abrir un Pull Request
 
-## Funcionalidades Implementadas
-1. **Búsqueda de Libros**
-   - Permite buscar libros por título en la API de Gutendex
-   - Almacena automáticamente la información del libro y su autor
-   - Evita duplicados de autores en la base de datos
-
-2. **Gestión de Autores**
-   - Almacena información de autores
-   - Permite buscar autores vivos en un año específico
-   - Muestra información detallada de cada autor
-
-3. **Gestión de Libros**
-   - Almacena información de libros
-   - Permite filtrar libros por idioma
-   - Muestra información detallada de cada libro
-
-## Cómo Usar
-1. Ejecutar la aplicación
-2. Seleccionar una opción del menú:
-   - 1: Buscar libro por título
-   - 2: Listar libros registrados
-   - 3: Listar autores registrados
-   - 4: Listar autores vivos en un año específico
-   - 5: Listar libros por idioma
-   - 0: Salir
-
-## Configuración
-La aplicación utiliza una base de datos H2 en memoria por defecto. Para usar PostgreSQL:
-
-1. Configurar la conexión en `application.properties`:
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/literalura
-spring.datasource.username=tu_usuario
-spring.datasource.password=tu_contraseña
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-```
-
-2. Asegurarse de que PostgreSQL esté instalado y ejecutándose
-
-## Próximos Pasos
-- Implementar validaciones adicionales
-- Mejorar el manejo de errores
-- Agregar más funcionalidades de búsqueda
-- Implementar interfaz gráfica
-- Agregar pruebas unitarias y de integración 
+## Licencia
+Este proyecto está bajo la Licencia MIT. 

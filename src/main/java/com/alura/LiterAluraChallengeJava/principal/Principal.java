@@ -45,6 +45,7 @@ public class Principal {
                     3 - Listar autores registrados
                     4 - Listar autores vivos en un determinado año
                     5 - Listar libros por idioma
+                    6 - Mostrar estadísticas de idiomas
                     
                     0 - Salir
                     """;
@@ -66,6 +67,9 @@ public class Principal {
                         break;
                     case 5:
                         listarLibrosPorIdioma();
+                        break;
+                    case 6:
+                        mostrarEstadisticasIdiomas();
                         break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
@@ -210,5 +214,26 @@ public class Principal {
                 System.out.println("-------------------");
             });
         }
+    }
+
+    /**
+     * Muestra estadísticas de libros por idioma
+     */
+    private void mostrarEstadisticasIdiomas() {
+        System.out.println("\nEstadísticas de libros por idioma:");
+        System.out.println("--------------------------------");
+        
+        // Idiomas a consultar
+        String[] idiomas = {"es", "en", "fr", "pt"};
+        
+        for (String idioma : idiomas) {
+            Long cantidad = libroRepository.countByIdioma(idioma);
+            System.out.printf("Idioma %s: %d libros%n", idioma, cantidad);
+        }
+        
+        // Calcular total de libros
+        Long totalLibros = libroRepository.count();
+        System.out.println("--------------------------------");
+        System.out.printf("Total de libros registrados: %d%n", totalLibros);
     }
 } 

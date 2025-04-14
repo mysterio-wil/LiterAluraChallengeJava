@@ -9,4 +9,7 @@ import java.util.List;
 public interface LibroRepository extends JpaRepository<Libro, Long> {
     @Query("SELECT l FROM Libro l WHERE l.idioma = :idioma")
     List<Libro> findLibrosPorIdioma(String idioma);
+
+    @Query("SELECT COUNT(l) FROM Libro l WHERE l.idioma = :idioma")
+    Long countByIdioma(String idioma);
 } 
