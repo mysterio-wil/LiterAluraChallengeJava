@@ -14,11 +14,15 @@ import com.alura.LiterAluraChallengeJava.service.ConvierteDatos;
 import com.alura.LiterAluraChallengeJava.service.EstadisticasService;
 import com.alura.LiterAluraChallengeJava.service.IConvierteDatos;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class Principal {
+    private static final String DESKTOP_PATH = System.getProperty("user.home") + "/Desktop/";
     private final Scanner teclado = new Scanner(System.in);
     private final ConsumoAPI consumoAPI = new ConsumoAPI();
     private final IConvierteDatos conversor = new ConvierteDatos();
@@ -50,6 +54,8 @@ public class Principal {
                     9 - Listar autores nacidos en un rango de años
                     10 - Marcar o desmarcar libro como favorito
                     11 - Listar libros favoritos
+                    12 - Exportar todos los libros
+                    13 - Exportar libros favoritos
                     
                     0 - Salir
                     """;
@@ -89,6 +95,12 @@ public class Principal {
                         break;
                     case 11:
                         listarLibrosFavoritos();
+                        break;
+                    case 12:
+                        exportarLibros();
+                        break;
+                    case 13:
+                        exportarFavoritos();
                         break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
@@ -377,5 +389,120 @@ public class Principal {
             System.out.println("Número de descargas: " + libro.getNumeroDescargas());
             System.out.println("-------------------");
         });
+    }
+
+    private void exportarLibros() {
+        List<Libro> libros = libroRepository.findAll();
+        if (libros.isEmpty()) {
+            System.out.println("No hay libros registrados.");
+            return;
+        }
+        System.out.println("Elige el formato de exportación: 1) CSV  2) JSON");
+        String formato = teclado.nextLine().trim();
+        switch (formato) {
+            case "1":
+                exportarLibrosCSV(libros);
+                break;
+            case "2":
+                exportarLibrosJSON(libros);
+                break;
+            default:
+                System.out.println("Opción inválida. Exportación cancelada.");
+        }
+    }
+
+    private void exportarFavoritos() {
+        List<FavoritoLibro> favoritos = favoritoLibroRepository.findAll();
+        if (favoritos.isEmpty()) {
+            System.out.println("No hay libros favoritos registrados.");
+            return;
+        }
+        System.out.println("Elige el formato de exportación: 1) CSV  2) JSON");
+        String formato = teclado.nextLine().trim();
+        switch (formato) {
+            case "1":
+                exportarFavoritosCSV(favoritos);
+                break;
+            case "2":
+                exportarFavoritosJSON(favoritos);
+                break;
+            default:
+                System.out.println("Opción inválida. Exportación cancelada.");
+        }
+    }
+
+    private void exportarLibrosCSV(List<Libro> libros) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(DESKTOP_PATH + "libros.csv"))) {
+            writer.println("Titulo,Autor,Idioma,NumeroDescargas");
+            for (Libro libro : libros) {
+                writer.printf("\"%s\",\"%s\",%s,%d\n",
+                        libro.getTitulo().replace("\"", "'"),
+                        libro.getAutor().getNombre().replace("\"", "'"),
+                        libro.getIdioma(),
+                        libro.getNumeroDescargas()
+                );
+            }
+            System.out.println("Libros exportados en formato CSV a " + DESKTOP_PATH + "libros.csv");
+        } catch (IOException e) {
+            System.out.println("Error al exportar libros en CSV: " + e.getMessage());
+        }
+    }
+
+    private void exportarLibrosJSON(List<Libro> libros) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(DESKTOP_PATH + "libros.json"))) {
+            writer.println("[");
+            for (int i = 0; i < libros.size(); i++) {
+                Libro libro = libros.get(i);
+                writer.printf("  {\"titulo\": \"%s\", \"autor\": \"%s\", \"idioma\": \"%s\", \"numeroDescargas\": %d}%s\n",
+                        libro.getTitulo().replace("\"", "'"),
+                        libro.getAutor().getNombre().replace("\"", "'"),
+                        libro.getIdioma(),
+                        libro.getNumeroDescargas(),
+                        (i < libros.size() - 1) ? "," : ""
+                );
+            }
+            writer.println("]");
+            System.out.println("Libros exportados en formato JSON a " + DESKTOP_PATH + "libros.json");
+        } catch (IOException e) {
+            System.out.println("Error al exportar libros en JSON: " + e.getMessage());
+        }
+    }
+
+    private void exportarFavoritosCSV(List<FavoritoLibro> favoritos) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(DESKTOP_PATH + "favoritos.csv"))) {
+            writer.println("Titulo,Autor,Idioma,NumeroDescargas");
+            for (FavoritoLibro fav : favoritos) {
+                Libro libro = fav.getLibro();
+                writer.printf("\"%s\",\"%s\",%s,%d\n",
+                        libro.getTitulo().replace("\"", "'"),
+                        libro.getAutor().getNombre().replace("\"", "'"),
+                        libro.getIdioma(),
+                        libro.getNumeroDescargas()
+                );
+            }
+            System.out.println("Favoritos exportados en formato CSV a " + DESKTOP_PATH + "favoritos.csv");
+        } catch (IOException e) {
+            System.out.println("Error al exportar favoritos en CSV: " + e.getMessage());
+        }
+    }
+
+    private void exportarFavoritosJSON(List<FavoritoLibro> favoritos) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(DESKTOP_PATH + "favoritos.json"))) {
+            writer.println("[");
+            for (int i = 0; i < favoritos.size(); i++) {
+                Libro libro = favoritos.get(i).getLibro();
+                writer.printf("  {\"titulo\": \"%s\", \"autor\": \"%s\", \"idioma\": \"%s\", \"numeroDescargas\": %d}%s\n",
+                        libro.getTitulo().replace("\"", "'"),
+                        libro.getAutor().getNombre().replace("\"", "'"),
+                        libro.getIdioma(),
+                        libro.getNumeroDescargas(),
+                        (i < favoritos.size() - 1) ? "," : ""
+                );
+            }
+            writer.println("]");
+            System.out.println("Favoritos exportados en formato JSON a " + DESKTOP_PATH + "favoritos.json");
+        } catch (IOException e) {
+            System.out.println("Error al exportar favoritos en JSON: " + e.getMessage());
+        }
     }
 }

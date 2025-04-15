@@ -34,9 +34,9 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 - [x] Base de datos MySQL
 - [x] Listado de autores nacidos en un rango de años
 - [x] Sistema de favoritos para libros
+- [x] Exportación de libros y favoritos a CSV o JSON en el escritorio del usuario
 
 ### Pendientes
-- [ ] Agregar funcionalidad de exportación de datos
 - [ ] Implementar búsqueda avanzada por múltiples criterios
 - [ ] Agregar sistema de recomendaciones basado en preferencias
 
@@ -102,6 +102,8 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
     - Opción 9: Listar autores nacidos en un rango de años
     - Opción 10: Marcar o desmarcar un libro como favorito (por título exacto)
     - Opción 11: Listar todos los libros favoritos registrados
+    - Opción 12: Exportar todos los libros
+    - Opción 13: Exportar libros favoritos
     - Opción 0: Salir
 
 ### Sistema de Favoritos
@@ -112,6 +114,23 @@ Puedes marcar o desmarcar libros como favoritos y consultar la lista de tus favo
 - **Opción 11:** Listar todos los libros favoritos registrados.
 
 Los favoritos se almacenan en la base de datos y puedes gestionarlos fácilmente desde la interfaz de consola.
+
+### Exportación de datos
+
+Puedes exportar la lista de libros registrados o tus libros favoritos desde el menú principal:
+
+- **Opción 12:** Exportar todos los libros
+- **Opción 13:** Exportar libros favoritos
+
+Al seleccionar una opción, elige el formato de exportación:
+- **1:** CSV
+- **2:** JSON
+
+Los archivos exportados se guardarán automáticamente en tu escritorio con los siguientes nombres:
+- `libros.csv` o `libros.json`
+- `favoritos.csv` o `favoritos.json`
+
+Esto facilita el acceso y manejo de los datos fuera de la aplicación.
 
 ## Últimas actualizaciones
 - Implementación de un sistema completo de estadísticas con menús anidados
@@ -179,6 +198,5 @@ Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](htt
 ### Próximas Versiones (Planificado)
 - Sistema de recomendaciones
 - Búsqueda avanzada con filtros
-- Exportación de datos
 - Interfaz gráfica
 - Estadísticas avanzadas
