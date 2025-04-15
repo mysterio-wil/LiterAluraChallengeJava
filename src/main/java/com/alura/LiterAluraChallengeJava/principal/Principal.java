@@ -73,6 +73,8 @@ public class Principal {
                         break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
+                        teclado.close();
+                        System.exit(0);
                         break;
                     default:
                         System.out.println("Opción inválida");

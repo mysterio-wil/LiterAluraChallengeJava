@@ -19,7 +19,7 @@
 - [Contacto](#contacto)
 
 ## Descripción
-LiterAlura es una aplicación Java que permite explorar y gestionar un catálogo de libros y autores. La aplicación se conecta a la API de Gutendex para obtener información sobre libros y autores, y almacena esta información en una base de datos MySQL para su posterior consulta.
+Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la API Gutendex y una base de datos MySQL.
 
 ## Características
 ### Implementadas
@@ -29,7 +29,8 @@ LiterAlura es una aplicación Java que permite explorar y gestionar un catálogo
 - [x] Búsqueda de autores vivos en un año específico
 - [x] Listado de libros por idioma
 - [x] Estadísticas de libros por idioma
-- [x] Persistencia de datos en base de datos MySQL
+- [x] Integración con Gutendex API
+- [x] Base de datos MySQL
 
 ### Pendientes
 - [ ] Implementar sistema de favoritos
@@ -64,9 +65,11 @@ LiterAlura es una aplicación Java que permite explorar y gestionar un catálogo
 2. Configurar las credenciales en `src/main/resources/application.properties`:
    ```properties
    spring.datasource.url=jdbc:mysql://localhost:3306/literalura
-   spring.datasource.username=tu_usuario
-   spring.datasource.password=tu_contraseña
+   spring.datasource.username=root
+   spring.datasource.password=22021989
    ```
+
+3. Puerto del servidor: 8888
 
 ## Uso
 1. Ejecutar la aplicación:
@@ -82,6 +85,11 @@ LiterAlura es una aplicación Java que permite explorar y gestionar un catálogo
    - Opción 5: Listar libros por idioma
    - Opción 6: Mostrar estadísticas de idiomas
    - Opción 0: Salir
+
+## Últimas actualizaciones
+- Corrección del cierre de la aplicación al seleccionar la opción 0
+- Optimización de la gestión de recursos (cierre de Scanner)
+- Cambio de puerto del servidor a 8888
 
 ## Estructura del Proyecto
 ```
