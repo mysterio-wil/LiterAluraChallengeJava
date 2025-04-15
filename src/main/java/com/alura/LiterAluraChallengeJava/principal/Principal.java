@@ -16,24 +16,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-/**
- * Clase principal que maneja la interacción con el usuario
- * y la lógica del menú de la aplicación
- */
 public class Principal {
     private final Scanner teclado = new Scanner(System.in);
     private final ConsumoAPI consumoAPI = new ConsumoAPI();
     private final IConvierteDatos conversor = new ConvierteDatos();
     private final AutorRepository autorRepository;
     private final LibroRepository libroRepository;
-    private final EstadisticasService estadisticasService;
     private final MenuEstadisticas menuEstadisticas;
-    private static final String URL_BASE = "https://gutendex.com/books/";
 
     public Principal(AutorRepository autorRepository, LibroRepository libroRepository, EstadisticasService estadisticasService) {
         this.autorRepository = autorRepository;
         this.libroRepository = libroRepository;
-        this.estadisticasService = estadisticasService;
         this.menuEstadisticas = new MenuEstadisticas(teclado, estadisticasService);
     }
 

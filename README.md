@@ -16,7 +16,6 @@
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Tecnologías Utilizadas](#tecnologías-utilizadas)
 - [Contribución](#contribución)
-- [Licencia](#licencia)
 - [Contacto](#contacto)
 - [Historial de Versiones](#historial-de-versiones)
 
@@ -112,38 +111,30 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 src/
 ├── main/
 │   ├── java/
-│   │   └── com/
-│   │       └── alura/
-│   │           └── LiterAluraChallengeJava/
-│   │               ├── model/
-│   │               │   ├── Autor.java
-│   │               │   └── Libro.java
-│   │               ├── repository/
-│   │               │   ├── AutorRepository.java
-│   │               │   └── LibroRepository.java
-│   │               ├── service/
-│   │               │   └── ConsumoAPI.java
-│   │               └── LiterAluraChallengeJavaApplication.java
+│   │   └── com/alura/LiterAluraChallengeJava/
+│   │       ├── model/
+│   │       ├── repository/
+│   │       ├── service/
+│   │       └── principal/
 │   └── resources/
 │       └── application.properties
 ```
 
 ## Tecnologías Utilizadas
-- **Spring Boot 3.4.4**: Framework principal
-- **Spring Data JPA**: Persistencia de datos
-- **MySQL**: Base de datos
-- **Jackson**: Procesamiento JSON
-- **Maven**: Gestión de dependencias
+- Java 21
+- Spring Boot 3.4.4
+- MySQL 8.0
+- Maven 3.9.9
+- JPA/Hibernate
+- Gutendex API
 
 ## Contribución
-1. Fork del proyecto
-2. Crear rama de feature (`git checkout -b feature/AmazingFeature`)
-3. Commit de cambios (`git commit -m 'Add some AmazingFeature'`)
+Si deseas contribuir al proyecto:
+1. Haz un Fork del repositorio
+2. Crea una rama para tu funcionalidad (`git checkout -b feature/AmazingFeature`)
+3. Haz commit de tus cambios (`git commit -m 'Add some AmazingFeature'`)
 4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
-
-## Licencia
-Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+5. Abre un Pull Request
 
 ## Contacto
 Wilmer Gulcochia - [@misterio1989w](https://x.com/misterio1989w) - karlwgs1989@gmail.com
@@ -159,7 +150,7 @@ Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](htt
   - Listado de autores registrados
   - Búsqueda de autores por año
   - Listado de libros por idioma
-  - Estadísticas de idiomas
+  - Sistema completo de estadísticas con menús anidados
 - Integración con Gutendex API
 - Base de datos MySQL
 - Cierre correcto de la aplicación
