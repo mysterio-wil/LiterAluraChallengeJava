@@ -13,15 +13,15 @@ public class BusquedaLibrosController {
     private LibroRepository libroRepository;
 
     public List<Libro> buscarLibros(String titulo, String autor, String idioma) {
-        if ((titulo == null || titulo.isEmpty()) &&
-            (autor == null || autor.isEmpty()) &&
-            (idioma == null || idioma.isEmpty())) {
-            return libroRepository.findAll();
+        String t = (titulo == null || titulo.trim().isEmpty()) ? null : titulo.trim();
+        String a = (autor == null || autor.trim().isEmpty()) ? null : autor.trim();
+        String i = (idioma == null || idioma.trim().isEmpty()) ? null : idioma.trim();
+        List<Libro> resultados;
+        if (t == null && a == null && i == null) {
+            resultados = libroRepository.findAll();
+        } else {
+            resultados = libroRepository.busquedaAvanzada(t, a, i);
         }
-        return libroRepository.busquedaAvanzada(
-            (titulo == null || titulo.isEmpty()) ? null : titulo,
-            (autor == null || autor.isEmpty()) ? null : autor,
-            (idioma == null || idioma.isEmpty()) ? null : idioma
-        );
+        return resultados;
     }
 }

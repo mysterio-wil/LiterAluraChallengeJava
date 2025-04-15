@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +44,28 @@ public class BusquedaLibrosView {
                 data.getValue().getNumeroDescargas() != null ? data.getValue().getNumeroDescargas() : 0).asObject());
         tablaResultados.getColumns().addAll(colTitulo, colAutor, colIdioma, colDescargas);
 
+        // Mensaje de feedback
+        Label lblMensaje = new Label();
+        lblMensaje.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+
         btnBuscar.setOnAction(e -> {
             String titulo = txtTitulo.getText();
             String autor = txtAutor.getText();
             String idioma = txtIdioma.getText();
+            lblMensaje.setText("");
+            if ((titulo == null || titulo.trim().isEmpty()) &&
+                (autor == null || autor.trim().isEmpty()) &&
+                (idioma == null || idioma.trim().isEmpty())) {
+                lblMensaje.setText("No ingresó ningún parámetro de búsqueda");
+                tablaResultados.setItems(FXCollections.observableArrayList());
+                return;
+            }
             List<Libro> resultados = controller.buscarLibros(titulo, autor, idioma);
+            if (resultados == null || resultados.isEmpty()) {
+                lblMensaje.setText("No se encontró ningún resultado");
+            } else {
+                lblMensaje.setText("");
+            }
             ObservableList<Libro> data = FXCollections.observableArrayList(resultados);
             tablaResultados.setItems(data);
         });
@@ -68,14 +86,13 @@ public class BusquedaLibrosView {
         form.add(txtAutor, 1, 1);
         form.add(lblIdioma, 0, 2);
         form.add(txtIdioma, 1, 2);
-        form.add(btnBuscar, 1, 3);
-        form.add(btnVolver, 0, 3);
+        HBox botones = new HBox(10, btnBuscar, btnVolver);
+        botones.setAlignment(Pos.CENTER);
+        VBox vbox = new VBox(20, form, botones, lblMensaje, tablaResultados);
+        vbox.setAlignment(Pos.TOP_CENTER);
+        vbox.setPadding(new Insets(20));
 
-        VBox root = new VBox(20, form, tablaResultados);
-        root.setAlignment(Pos.TOP_CENTER);
-        root.setPadding(new Insets(20));
-
-        Scene scene = new Scene(root, 700, 450);
+        Scene scene = new Scene(vbox, 700, 450);
         stage.setTitle("Búsqueda avanzada de libros");
         stage.setScene(scene);
         stage.show();

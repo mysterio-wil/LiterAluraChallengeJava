@@ -119,14 +119,19 @@ Puedes marcar o desmarcar libros como favoritos y consultar la lista de tus favo
 
 Los favoritos se almacenan en la base de datos y puedes gestionarlos fácilmente desde la interfaz de consola.
 
-### Búsqueda avanzada de libros
+### Búsqueda avanzada de libros (Interfaz Gráfica)
 
-Puedes realizar una búsqueda avanzada de libros desde el menú principal (opción 14):
+A partir de la versión 1.1.0, la búsqueda avanzada de libros se realiza desde una interfaz gráfica JavaFX:
 
-- Filtra por título (parcial), autor y/o idioma (todos los campos son opcionales).
-- Los resultados se muestran en la consola.
+- Accede desde el menú principal con el botón **"Buscar libros"**.
+- Puedes filtrar por título, autor y/o idioma (todos los campos son opcionales).
+- Si no ingresas ningún parámetro, se mostrará el mensaje: _"No ingresó ningún parámetro de búsqueda"_ debajo de los botones.
+- Si no se encuentra ningún resultado, se mostrará el mensaje: _"No se encontró ningún resultado"_ en el mismo lugar.
+- Los resultados aparecen en una tabla dentro de la misma ventana.
+- El botón **"Volver"** te regresa al menú principal.
+- El botón **"Salir"** cierra completamente la aplicación.
 
-> **Nota:** Hasta este punto, todas las consultas y operaciones se realizan mediante la consola. En la siguiente etapa del proyecto, la interacción será migrada a una interfaz gráfica.
+> La integración entre JavaFX y Spring Boot permite que todas las vistas y controladores usen inyección de dependencias correctamente.
 
 ### Exportación de datos
 
@@ -152,6 +157,10 @@ Esto facilita el acceso y manejo de los datos fuera de la aplicación.
 - Corrección del cierre de la aplicación al seleccionar la opción 0
 - Optimización de la gestión de recursos (cierre de Scanner)
 - Cambio de puerto del servidor a 8888
+- Interfaz gráfica de búsqueda avanzada completamente funcional y conectada a la base de datos.
+- Mensajes informativos en pantalla para búsquedas sin parámetros o sin resultados.
+- El botón 'Salir' ahora cierra la ventana y detiene la JVM.
+- Refactor para garantizar obtención de beans vía Spring en vistas/controladores JavaFX.
 
 ## Avance de la Interfaz Gráfica (JavaFX)
 - [x] Configuración inicial de JavaFX en el proyecto (pom.xml y dependencias).
