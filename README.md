@@ -4,6 +4,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.4-green.svg)](https://spring.io/projects/spring-boot)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
 [![Maven](https://img.shields.io/badge/Maven-3.9.9-orange.svg)](https://maven.apache.org/)
+![version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 
 ## Tabla de Contenidos
 - [Descripción](#descripción)
@@ -17,6 +18,7 @@
 - [Contribución](#contribución)
 - [Licencia](#licencia)
 - [Contacto](#contacto)
+- [Historial de Versiones](#historial-de-versiones)
 
 ## Descripción
 Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la API Gutendex y una base de datos MySQL.
@@ -132,4 +134,26 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para
 ## Contacto
 Wilmer Gulcochia - [@misterio1989w](https://x.com/misterio1989w) - karlwgs1989@gmail.com
 
-Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](https://github.com/mysterio-wil/LiterAluraChallengeJava) 
+Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](https://github.com/mysterio-wil/LiterAluraChallengeJava)
+
+## Historial de Versiones
+
+### v1.0.0 (Actual)
+- Funcionalidades base implementadas:
+  - Búsqueda de libros por título
+  - Listado de libros registrados
+  - Listado de autores registrados
+  - Búsqueda de autores por año
+  - Listado de libros por idioma
+  - Estadísticas de idiomas
+- Integración con Gutendex API
+- Base de datos MySQL
+- Cierre correcto de la aplicación
+- Puerto del servidor: 8888
+
+### Próximas Versiones (Planificado)
+- Sistema de favoritos
+- Búsqueda avanzada con filtros
+- Exportación de datos
+- Interfaz gráfica
+- Estadísticas avanzadas
