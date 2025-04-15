@@ -41,6 +41,7 @@ public class Principal {
                     4 - Listar autores vivos en un determinado año
                     5 - Listar libros por idioma
                     6 - Mostrar estadísticas
+                    7 - Top 10 libros más descargados
                     
                     0 - Salir
                     """;
@@ -66,6 +67,9 @@ public class Principal {
                     case 6:
                         menuEstadisticas.mostrarMenuPrincipal();
                         break;
+                    case 7:
+                        menuEstadisticas.mostrarTop10LibrosMasDescargados();
+                        break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
                         teclado.close();
@@ -85,7 +89,7 @@ public class Principal {
     private void buscarLibroPorTitulo() {
         System.out.println("Ingrese el nombre del libro que desea buscar:");
         var tituloLibro = teclado.nextLine().trim();
-        
+
         // Primera verificación: buscar libros similares
         List<Libro> librosSimilares = libroRepository.findByTituloSimilar(tituloLibro);
         if (!librosSimilares.isEmpty()) {
@@ -97,7 +101,7 @@ public class Principal {
                 System.out.println("Número de descargas: " + libro.getNumeroDescargas());
                 System.out.println("-------------------");
             });
-            
+
             System.out.println("\n¿Desea buscar otro libro? (s/n)");
             String respuesta = teclado.nextLine().toLowerCase();
             if (respuesta.equals("s")) {
@@ -105,7 +109,7 @@ public class Principal {
             }
             return;
         }
-        
+
         System.out.println("\nBuscando libro en la API de Gutendex...");
         var json = consumoAPI.obtenerDatos("?search=" + tituloLibro.replace(" ", "+"));
         try {
@@ -120,13 +124,13 @@ public class Principal {
             } else {
                 DatosLibros libroBuscado = datos.getLibros().get(0);
                 DatosAutor autorLibro = libroBuscado.getAutores().get(0);
-                
+
                 // Verificación final: buscar por título y autor exactos
                 Optional<Libro> libroExistente = libroRepository.findByTituloYAutor(
-                    libroBuscado.getTitulo(),
-                    autorLibro.getNombre()
+                        libroBuscado.getTitulo(),
+                        autorLibro.getNombre()
                 );
-                
+
                 if (libroExistente.isPresent()) {
                     System.out.println("\nEl libro ya existe en la base de datos:");
                     Libro libro = libroExistente.get();
@@ -136,11 +140,11 @@ public class Principal {
                     System.out.println("Número de descargas: " + libro.getNumeroDescargas());
                     return;
                 }
-                
+
                 // Buscar si el autor ya existe
                 Optional<Autor> autorOptional = autorRepository.findByNombre(autorLibro.getNombre());
                 Autor autor;
-                
+
                 if (autorOptional.isPresent()) {
                     autor = autorOptional.get();
                     System.out.println("\nAutor encontrado en la base de datos.");
@@ -153,7 +157,7 @@ public class Principal {
                     autorRepository.save(autor);
                     System.out.println("\nNuevo autor registrado.");
                 }
-                
+
                 // Crear y guardar el libro
                 Libro libro = new Libro(
                         libroBuscado.getTitulo(),
@@ -162,13 +166,13 @@ public class Principal {
                         autor
                 );
                 libroRepository.save(libro);
-                
+
                 System.out.println("\nLibro guardado con éxito:");
                 System.out.println("Título: " + libro.getTitulo());
                 System.out.println("Autor: " + autor.getNombre());
                 System.out.println("Idioma: " + libro.getIdioma());
                 System.out.println("Número de descargas: " + libro.getNumeroDescargas());
-                
+
                 System.out.println("\n¿Desea buscar otro libro? (s/n)");
                 String respuesta = teclado.nextLine().toLowerCase();
                 if (respuesta.equals("s")) {

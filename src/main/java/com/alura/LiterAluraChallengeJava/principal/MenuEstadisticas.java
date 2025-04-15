@@ -26,7 +26,7 @@ public class MenuEstadisticas {
                     
                     0 - Volver al menú principal
                     """);
-            
+
             try {
                 opcion = Integer.parseInt(scanner.nextLine());
                 switch (opcion) {
@@ -111,6 +111,7 @@ public class MenuEstadisticas {
                     === ESTADÍSTICAS COMBINADAS ===
                     1 - Estadísticas de descargas por autor
                     2 - Distribución de libros por siglo
+                    3 - Top 10 Libros Más Descargados
                     
                     0 - Volver
                     """);
@@ -121,6 +122,7 @@ public class MenuEstadisticas {
                     case 1 -> System.out.println(estadisticasService.formatearEstadisticas(
                             estadisticasService.obtenerEstadisticasDescargasPorAutor()));
                     case 2 -> mostrarDistribucionPorSiglo();
+                    case 3 -> mostrarTop10LibrosMasDescargados();
                     case 0 -> System.out.println("Volviendo al menú de estadísticas...");
                     default -> System.out.println("Opción inválida");
                 }
@@ -128,6 +130,26 @@ public class MenuEstadisticas {
                 System.out.println("Por favor, ingrese un número válido");
             }
         }
+    }
+
+    public void mostrarTop10LibrosMasDescargados() {
+        System.out.println("\nTop 10 Libros Más Descargados:");
+        System.out.println("--------------------------------");
+
+        var top10 = estadisticasService.obtenerTop10LibrosMasDescargados();
+        if (top10.isEmpty()) {
+            System.out.println("No hay libros registrados en la base de datos.");
+            return;
+        }
+
+        for (int i = 0; i < top10.size(); i++) {
+            var libro = top10.get(i);
+            System.out.printf("%d. %s - Descargas: %d%n",
+                    i + 1,
+                    libro.getTitulo(),
+                    libro.getNumeroDescargas());
+        }
+        System.out.println();
     }
 
     private void mostrarDistribucionPorIdioma() {

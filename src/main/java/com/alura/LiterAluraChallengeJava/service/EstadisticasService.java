@@ -7,6 +7,7 @@ import com.alura.LiterAluraChallengeJava.repository.LibroRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.DoubleSummaryStatistics;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,13 @@ public class EstadisticasService {
         return libroRepository.findAll().stream()
                 .mapToDouble(libro -> libro.getNumeroDescargas().doubleValue())
                 .summaryStatistics();
+    }
+
+    public List<Libro> obtenerTop10LibrosMasDescargados() {
+        return libroRepository.findAll().stream()
+                .sorted((l1, l2) -> l2.getNumeroDescargas().compareTo(l1.getNumeroDescargas()))
+                .limit(10)
+                .collect(Collectors.toList());
     }
 
     // Estadísticas de Autores

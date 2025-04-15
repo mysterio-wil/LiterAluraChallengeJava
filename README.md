@@ -79,24 +79,25 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
    ```
 
 2. Menú de opciones:
-   - Opción 1: Buscar libro por título
-   - Opción 2: Listar libros registrados
-   - Opción 3: Listar autores registrados
-   - Opción 4: Listar autores vivos en un año específico
-   - Opción 5: Listar libros por idioma
-   - Opción 6: Mostrar estadísticas
-     - Estadísticas de Libros
-       - Total de libros
-       - Distribución por idioma
-       - Estadísticas de descargas
-     - Estadísticas de Autores
-       - Total de autores
-       - Promedio de libros por autor
-       - Estadísticas de edad de autores
-     - Estadísticas Combinadas
-       - Estadísticas de descargas por autor
-       - Distribución de libros por siglo
-   - Opción 0: Salir
+    - Opción 1: Buscar libro por título
+    - Opción 2: Listar libros registrados
+    - Opción 3: Listar autores registrados
+    - Opción 4: Listar autores vivos en un año específico
+    - Opción 5: Listar libros por idioma
+    - Opción 6: Mostrar estadísticas
+        - Estadísticas de Libros
+            - Total de libros
+            - Distribución por idioma
+            - Estadísticas de descargas
+        - Estadísticas de Autores
+            - Total de autores
+            - Promedio de libros por autor
+            - Estadísticas de edad de autores
+        - Estadísticas Combinadas
+            - Estadísticas de descargas por autor
+            - Distribución de libros por siglo
+    - Opción 7: Top 10 libros más descargados
+    - Opción 0: Salir
 
 ## Últimas actualizaciones
 - Implementación de un sistema completo de estadísticas con menús anidados
@@ -145,12 +146,13 @@ Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](htt
 
 ### v1.0.0 (Actual)
 - Funcionalidades base implementadas:
-  - Búsqueda de libros por título
-  - Listado de libros registrados
-  - Listado de autores registrados
-  - Búsqueda de autores por año
-  - Listado de libros por idioma
-  - Sistema completo de estadísticas con menús anidados
+    - Búsqueda de libros por título
+    - Listado de libros registrados
+    - Listado de autores registrados
+    - Búsqueda de autores por año
+    - Listado de libros por idioma
+    - Sistema completo de estadísticas con menús anidados
+    - Top 10 libros más descargados
 - Integración con Gutendex API
 - Base de datos MySQL
 - Cierre correcto de la aplicación
