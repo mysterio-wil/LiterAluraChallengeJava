@@ -160,6 +160,7 @@ Esto facilita el acceso y manejo de los datos fuera de la aplicación.
 - [x] Limpieza de archivos auxiliares y scripts innecesarios.
 - [x] Menú principal gráfico con botones para Buscar libros, Favoritos, Exportar datos y Salir, usando JavaFX (MenuPrincipalView).
 - [x] Integración de la pantalla de búsqueda avanzada: el botón 'Buscar libros' ahora abre un formulario gráfico para búsqueda avanzada (BusquedaLibrosView).
+- [x] Búsqueda avanzada funcional en la GUI: formulario gráfico conectado a la base de datos, resultados en tabla y botón para volver al menú principal.
 
 > A partir de aquí, el desarrollo continuará implementando las funcionalidades gráficas paso a paso.
 
