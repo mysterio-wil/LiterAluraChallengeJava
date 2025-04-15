@@ -85,10 +85,24 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
    - Opción 3: Listar autores registrados
    - Opción 4: Listar autores vivos en un año específico
    - Opción 5: Listar libros por idioma
-   - Opción 6: Mostrar estadísticas de idiomas
+   - Opción 6: Mostrar estadísticas
+     - Estadísticas de Libros
+       - Total de libros
+       - Distribución por idioma
+       - Estadísticas de descargas
+     - Estadísticas de Autores
+       - Total de autores
+       - Promedio de libros por autor
+       - Estadísticas de edad de autores
+     - Estadísticas Combinadas
+       - Estadísticas de descargas por autor
+       - Distribución de libros por siglo
    - Opción 0: Salir
 
 ## Últimas actualizaciones
+- Implementación de un sistema completo de estadísticas con menús anidados
+- Mejora en la organización del código con nueva clase MenuEstadisticas
+- Optimización del manejo de datos estadísticos usando DoubleSummaryStatistics
 - Corrección del cierre de la aplicación al seleccionar la opción 0
 - Optimización de la gestión de recursos (cierre de Scanner)
 - Cambio de puerto del servidor a 8888

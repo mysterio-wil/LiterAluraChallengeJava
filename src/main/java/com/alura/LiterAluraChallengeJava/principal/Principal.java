@@ -9,6 +9,7 @@ import com.alura.LiterAluraChallengeJava.repository.AutorRepository;
 import com.alura.LiterAluraChallengeJava.repository.LibroRepository;
 import com.alura.LiterAluraChallengeJava.service.ConsumoAPI;
 import com.alura.LiterAluraChallengeJava.service.ConvierteDatos;
+import com.alura.LiterAluraChallengeJava.service.EstadisticasService;
 import com.alura.LiterAluraChallengeJava.service.IConvierteDatos;
 
 import java.util.List;
@@ -25,16 +26,17 @@ public class Principal {
     private final IConvierteDatos conversor = new ConvierteDatos();
     private final AutorRepository autorRepository;
     private final LibroRepository libroRepository;
+    private final EstadisticasService estadisticasService;
+    private final MenuEstadisticas menuEstadisticas;
     private static final String URL_BASE = "https://gutendex.com/books/";
 
-    public Principal(AutorRepository autorRepository, LibroRepository libroRepository) {
+    public Principal(AutorRepository autorRepository, LibroRepository libroRepository, EstadisticasService estadisticasService) {
         this.autorRepository = autorRepository;
         this.libroRepository = libroRepository;
+        this.estadisticasService = estadisticasService;
+        this.menuEstadisticas = new MenuEstadisticas(teclado, estadisticasService);
     }
 
-    /**
-     * Muestra el menú principal y maneja la interacción con el usuario
-     */
     public void muestraElMenu() {
         var opcion = -1;
         while (opcion != 0) {
@@ -45,7 +47,7 @@ public class Principal {
                     3 - Listar autores registrados
                     4 - Listar autores vivos en un determinado año
                     5 - Listar libros por idioma
-                    6 - Mostrar estadísticas de idiomas
+                    6 - Mostrar estadísticas
                     
                     0 - Salir
                     """;
@@ -69,7 +71,7 @@ public class Principal {
                         listarLibrosPorIdioma();
                         break;
                     case 6:
-                        mostrarEstadisticasIdiomas();
+                        menuEstadisticas.mostrarMenuPrincipal();
                         break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
@@ -87,9 +89,6 @@ public class Principal {
         }
     }
 
-    /**
-     * Busca libros por título en la API Gutendex y los guarda en la base de datos
-     */
     private void buscarLibroPorTitulo() {
         System.out.println("Ingrese el nombre del libro que desea buscar:");
         var tituloLibro = teclado.nextLine().trim();
@@ -193,9 +192,6 @@ public class Principal {
         }
     }
 
-    /**
-     * Lista todos los libros registrados en la base de datos
-     */
     private void listarLibrosRegistrados() {
         List<Libro> libros = libroRepository.findAll();
         if (libros.isEmpty()) {
@@ -212,9 +208,6 @@ public class Principal {
         }
     }
 
-    /**
-     * Lista todos los autores registrados en la base de datos
-     */
     private void listarAutoresRegistrados() {
         List<Autor> autores = autorRepository.findAll();
         if (autores.isEmpty()) {
@@ -230,9 +223,6 @@ public class Principal {
         }
     }
 
-    /**
-     * Lista los autores vivos en un año específico
-     */
     private void listarAutoresVivosEnAnio() {
         System.out.println("Ingrese el año para buscar autores vivos:");
         try {
@@ -254,9 +244,6 @@ public class Principal {
         }
     }
 
-    /**
-     * Lista los libros por idioma
-     */
     private void listarLibrosPorIdioma() {
         System.out.println("Ingrese el idioma para buscar libros (ej: es, en, fr, pt):");
         String idioma = teclado.nextLine();
@@ -273,25 +260,4 @@ public class Principal {
             });
         }
     }
-
-    /**
-     * Muestra estadísticas de libros por idioma
-     */
-    private void mostrarEstadisticasIdiomas() {
-        System.out.println("\nEstadísticas de libros por idioma:");
-        System.out.println("--------------------------------");
-        
-        // Idiomas a consultar
-        String[] idiomas = {"es", "en", "fr", "pt"};
-        
-        for (String idioma : idiomas) {
-            Long cantidad = libroRepository.countByIdioma(idioma);
-            System.out.printf("Idioma %s: %d libros%n", idioma, cantidad);
-        }
-        
-        // Calcular total de libros
-        Long totalLibros = libroRepository.count();
-        System.out.println("--------------------------------");
-        System.out.printf("Total de libros registrados: %d%n", totalLibros);
-    }
-} 
+}

@@ -3,6 +3,7 @@ package com.alura.LiterAluraChallengeJava;
 import com.alura.LiterAluraChallengeJava.principal.Principal;
 import com.alura.LiterAluraChallengeJava.repository.AutorRepository;
 import com.alura.LiterAluraChallengeJava.repository.LibroRepository;
+import com.alura.LiterAluraChallengeJava.service.EstadisticasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -21,13 +22,16 @@ public class LiterAluraChallengeJavaApplication implements CommandLineRunner {
 	@Autowired
 	private LibroRepository libroRepository;
 
+	@Autowired
+	private EstadisticasService estadisticasService;
+
 	public static void main(String[] args) {
 		SpringApplication.run(LiterAluraChallengeJavaApplication.class, args);
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
-		Principal principal = new Principal(autorRepository, libroRepository);
+		Principal principal = new Principal(autorRepository, libroRepository, estadisticasService);
 		principal.muestraElMenu();
 	}
 }
