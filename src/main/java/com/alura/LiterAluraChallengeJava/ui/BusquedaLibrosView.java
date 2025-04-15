@@ -1,5 +1,6 @@
 package com.alura.LiterAluraChallengeJava.ui;
 
+import com.alura.LiterAluraChallengeJava.model.Libro;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,7 +22,7 @@ public class BusquedaLibrosView {
         TextField txtIdioma = new TextField();
         Button btnBuscar = new Button("Buscar");
 
-        TableView tablaResultados = new TableView<>(); // Placeholder, se configurará después
+        TableView<Libro> tablaResultados = new TableView<>(); // Preparado para mostrar libros
 
         GridPane form = new GridPane();
         form.setAlignment(Pos.CENTER);
