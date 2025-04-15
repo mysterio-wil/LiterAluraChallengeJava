@@ -97,6 +97,7 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
             - Estadísticas de descargas por autor
             - Distribución de libros por siglo
     - Opción 7: Top 10 libros más descargados
+    - Opción 8: Buscar autor por nombre
     - Opción 0: Salir
 
 ## Últimas actualizaciones
@@ -147,6 +148,7 @@ Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](htt
 ### v1.0.0 (Actual)
 - Funcionalidades base implementadas:
     - Búsqueda de libros por título
+    - Búsqueda de autores por nombre
     - Listado de libros registrados
     - Listado de autores registrados
     - Búsqueda de autores por año

@@ -42,6 +42,7 @@ public class Principal {
                     5 - Listar libros por idioma
                     6 - Mostrar estadísticas
                     7 - Top 10 libros más descargados
+                    8 - Buscar autor por nombre
                     
                     0 - Salir
                     """;
@@ -69,6 +70,9 @@ public class Principal {
                         break;
                     case 7:
                         menuEstadisticas.mostrarTop10LibrosMasDescargados();
+                        break;
+                    case 8:
+                        buscarAutorPorNombre();
                         break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
@@ -122,8 +126,8 @@ public class Principal {
                     buscarLibroPorTitulo();
                 }
             } else {
-                DatosLibros libroBuscado = datos.getLibros().get(0);
-                DatosAutor autorLibro = libroBuscado.getAutores().get(0);
+                DatosLibros libroBuscado = datos.getLibros().getFirst();
+                DatosAutor autorLibro = libroBuscado.getAutores().getFirst();
 
                 // Verificación final: buscar por título y autor exactos
                 Optional<Libro> libroExistente = libroRepository.findByTituloYAutor(
@@ -161,7 +165,7 @@ public class Principal {
                 // Crear y guardar el libro
                 Libro libro = new Libro(
                         libroBuscado.getTitulo(),
-                        libroBuscado.getIdiomas().get(0),
+                        libroBuscado.getIdiomas().getFirst(),
                         libroBuscado.getNumeroDescargas(),
                         autor
                 );
@@ -256,5 +260,38 @@ public class Principal {
                 System.out.println("-------------------");
             });
         }
+    }
+
+    private void buscarAutorPorNombre() {
+        System.out.println("\nIngrese el nombre del autor que desea buscar:");
+        var nombreAutor = teclado.nextLine().trim();
+
+        var autoresEncontrados = autorRepository.findByNombreSimilar(nombreAutor);
+        if (autoresEncontrados.isEmpty()) {
+            System.out.println("No se encontraron autores con ese nombre.");
+            return;
+        }
+
+        System.out.println("\nAutores encontrados:");
+        System.out.println("-------------------");
+        autoresEncontrados.forEach(autor -> {
+            System.out.println("\nNombre: " + autor.getNombre());
+            System.out.println("Año de nacimiento: " +
+                    (autor.getFechaNacimiento() != null ? autor.getFechaNacimiento() : "Desconocido"));
+            System.out.println("Año de fallecimiento: " +
+                    (autor.getFechaFallecimiento() != null ? autor.getFechaFallecimiento() : "Desconocido o aún vivo"));
+
+            var libros = autor.getLibros();
+            if (!libros.isEmpty()) {
+                System.out.println("Libros:");
+                libros.forEach(libro ->
+                        System.out.printf("- %s (Descargas: %d)%n",
+                                libro.getTitulo(),
+                                libro.getNumeroDescargas()));
+            } else {
+                System.out.println("No hay libros registrados para este autor.");
+            }
+        });
+        System.out.println();
     }
 }
