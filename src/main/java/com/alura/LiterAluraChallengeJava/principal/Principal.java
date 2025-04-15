@@ -4,8 +4,10 @@ import com.alura.LiterAluraChallengeJava.model.Autor;
 import com.alura.LiterAluraChallengeJava.model.Datos;
 import com.alura.LiterAluraChallengeJava.model.DatosAutor;
 import com.alura.LiterAluraChallengeJava.model.DatosLibros;
+import com.alura.LiterAluraChallengeJava.model.FavoritoLibro;
 import com.alura.LiterAluraChallengeJava.model.Libro;
 import com.alura.LiterAluraChallengeJava.repository.AutorRepository;
+import com.alura.LiterAluraChallengeJava.repository.FavoritoLibroRepository;
 import com.alura.LiterAluraChallengeJava.repository.LibroRepository;
 import com.alura.LiterAluraChallengeJava.service.ConsumoAPI;
 import com.alura.LiterAluraChallengeJava.service.ConvierteDatos;
@@ -22,12 +24,14 @@ public class Principal {
     private final IConvierteDatos conversor = new ConvierteDatos();
     private final AutorRepository autorRepository;
     private final LibroRepository libroRepository;
+    private final FavoritoLibroRepository favoritoLibroRepository;
     private final MenuEstadisticas menuEstadisticas;
 
-    public Principal(AutorRepository autorRepository, LibroRepository libroRepository, EstadisticasService estadisticasService) {
+    public Principal(AutorRepository autorRepository, LibroRepository libroRepository, EstadisticasService estadisticasService, FavoritoLibroRepository favoritoLibroRepository) {
         this.autorRepository = autorRepository;
         this.libroRepository = libroRepository;
         this.menuEstadisticas = new MenuEstadisticas(teclado, estadisticasService);
+        this.favoritoLibroRepository = favoritoLibroRepository;
     }
 
     public void muestraElMenu() {
@@ -44,6 +48,8 @@ public class Principal {
                     7 - Top 10 libros más descargados
                     8 - Buscar autor por nombre
                     9 - Listar autores nacidos en un rango de años
+                    10 - Marcar o desmarcar libro como favorito
+                    11 - Listar libros favoritos
                     
                     0 - Salir
                     """;
@@ -77,6 +83,12 @@ public class Principal {
                         break;
                     case 9:
                         listarAutoresPorRangoNacimiento();
+                        break;
+                    case 10:
+                        marcarODesmarcarLibroFavorito();
+                        break;
+                    case 11:
+                        listarLibrosFavoritos();
                         break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
@@ -329,5 +341,41 @@ public class Principal {
             System.out.printf("Año de fallecimiento: %s%n", autor.getFechaFallecimiento() != null ? autor.getFechaFallecimiento() : "Desconocido o aún vivo");
         });
         System.out.println();
+    }
+
+    private void marcarODesmarcarLibroFavorito() {
+        System.out.println("\nIngrese el título del libro para marcar o desmarcar como favorito:");
+        String titulo = teclado.nextLine().trim();
+        Optional<Libro> libroOpt = libroRepository.findByTitulo(titulo);
+        if (libroOpt.isEmpty()) {
+            System.out.println("No se encontró el libro con ese título.");
+            return;
+        }
+        Libro libro = libroOpt.get();
+        Optional<FavoritoLibro> favOpt = favoritoLibroRepository.findByLibro(libro);
+        if (favOpt.isPresent()) {
+            favoritoLibroRepository.deleteByLibro(libro);
+            System.out.println("Libro desmarcado como favorito.");
+        } else {
+            favoritoLibroRepository.save(new FavoritoLibro(libro));
+            System.out.println("Libro marcado como favorito.");
+        }
+    }
+
+    private void listarLibrosFavoritos() {
+        List<FavoritoLibro> favoritos = favoritoLibroRepository.findAll();
+        if (favoritos.isEmpty()) {
+            System.out.println("No hay libros favoritos registrados.");
+            return;
+        }
+        System.out.println("\nLibros favoritos:");
+        favoritos.forEach(fav -> {
+            Libro libro = fav.getLibro();
+            System.out.println("Título: " + libro.getTitulo());
+            System.out.println("Autor: " + libro.getAutor().getNombre());
+            System.out.println("Idioma: " + libro.getIdioma());
+            System.out.println("Número de descargas: " + libro.getNumeroDescargas());
+            System.out.println("-------------------");
+        });
     }
 }

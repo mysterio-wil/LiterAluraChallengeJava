@@ -4,7 +4,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.4-green.svg)](https://spring.io/projects/spring-boot)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
 [![Maven](https://img.shields.io/badge/Maven-3.9.9-orange.svg)](https://maven.apache.org/)
-![version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![version](https://img.shields.io/badge/version-1.1.0-blue.svg)
 
 ## Tabla de Contenidos
 - [Descripción](#descripción)
@@ -33,9 +33,9 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 - [x] Integración con Gutendex API
 - [x] Base de datos MySQL
 - [x] Listado de autores nacidos en un rango de años
+- [x] Sistema de favoritos para libros
 
 ### Pendientes
-- [ ] Implementar sistema de favoritos
 - [ ] Agregar funcionalidad de exportación de datos
 - [ ] Implementar búsqueda avanzada por múltiples criterios
 - [ ] Agregar sistema de recomendaciones basado en preferencias
@@ -100,7 +100,18 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
     - Opción 7: Top 10 libros más descargados
     - Opción 8: Buscar autor por nombre
     - Opción 9: Listar autores nacidos en un rango de años
+    - Opción 10: Marcar o desmarcar un libro como favorito (por título exacto)
+    - Opción 11: Listar todos los libros favoritos registrados
     - Opción 0: Salir
+
+### Sistema de Favoritos
+
+Puedes marcar o desmarcar libros como favoritos y consultar la lista de tus favoritos desde el menú principal:
+
+- **Opción 10:** Marcar o desmarcar un libro como favorito (por título exacto).
+- **Opción 11:** Listar todos los libros favoritos registrados.
+
+Los favoritos se almacenan en la base de datos y puedes gestionarlos fácilmente desde la interfaz de consola.
 
 ## Últimas actualizaciones
 - Implementación de un sistema completo de estadísticas con menús anidados
@@ -147,7 +158,10 @@ Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](htt
 
 ## Historial de Versiones
 
-### v1.0.0 (Actual)
+### v1.1.0
+- Nuevo: Sistema de favoritos para libros (marcar, desmarcar y listar favoritos desde el menú)
+
+### v1.0.0
 - Funcionalidades base implementadas:
     - Búsqueda de libros por título
     - Búsqueda de autores por nombre
@@ -163,7 +177,7 @@ Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](htt
 - Puerto del servidor: 8888
 
 ### Próximas Versiones (Planificado)
-- Sistema de favoritos
+- Sistema de recomendaciones
 - Búsqueda avanzada con filtros
 - Exportación de datos
 - Interfaz gráfica
