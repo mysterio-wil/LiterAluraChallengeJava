@@ -157,8 +157,9 @@ Esto facilita el acceso y manejo de los datos fuera de la aplicación.
 - [x] Creación de la clase principal `LiterAluraApp` que muestra una ventana básica de bienvenida.
 - [x] Verificación de ejecución correcta tanto por consola (Maven) como desde la interfaz de IntelliJ IDEA.
 - [x] Limpieza de archivos auxiliares y scripts innecesarios.
+- [x] Menú principal gráfico con botones para Buscar libros, Favoritos, Exportar datos y Salir, usando JavaFX (MenuPrincipalView).
 
-> A partir de aquí, el desarrollo continuará implementando el menú principal y las funcionalidades gráficas paso a paso.
+> A partir de aquí, el desarrollo continuará implementando las funcionalidades gráficas paso a paso.
 
 ## Estructura del Proyecto
 ```
