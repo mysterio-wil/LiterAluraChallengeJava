@@ -18,6 +18,7 @@
 - [Contribución](#contribución)
 - [Contacto](#contacto)
 - [Historial de Versiones](#historial-de-versiones)
+- [Avance de la Interfaz Gráfica (JavaFX)](#avance-de-la-interfaz-gráfica-javafx)
 
 ## Descripción
 Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la API Gutendex y una base de datos MySQL.
@@ -150,6 +151,14 @@ Esto facilita el acceso y manejo de los datos fuera de la aplicación.
 - Corrección del cierre de la aplicación al seleccionar la opción 0
 - Optimización de la gestión de recursos (cierre de Scanner)
 - Cambio de puerto del servidor a 8888
+
+## Avance de la Interfaz Gráfica (JavaFX)
+- [x] Configuración inicial de JavaFX en el proyecto (pom.xml y dependencias).
+- [x] Creación de la clase principal `LiterAluraApp` que muestra una ventana básica de bienvenida.
+- [x] Verificación de ejecución correcta tanto por consola (Maven) como desde la interfaz de IntelliJ IDEA.
+- [x] Limpieza de archivos auxiliares y scripts innecesarios.
+
+> A partir de aquí, el desarrollo continuará implementando el menú principal y las funcionalidades gráficas paso a paso.
 
 ## Estructura del Proyecto
 ```
