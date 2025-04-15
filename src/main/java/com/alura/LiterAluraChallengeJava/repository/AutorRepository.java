@@ -18,4 +18,7 @@ public interface AutorRepository extends JpaRepository<Autor, Long> {
     List<Autor> findByNombreSimilar(@Param("nombre") String nombre);
 
     Optional<Autor> findByNombre(String nombre);
+
+    @Query("SELECT a FROM Autor a WHERE a.fechaNacimiento >= :inicio AND a.fechaNacimiento <= :fin")
+    List<Autor> findByRangoNacimiento(@Param("inicio") Integer inicio, @Param("fin") Integer fin);
 }

@@ -32,6 +32,7 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 - [x] Estadísticas de libros por idioma
 - [x] Integración con Gutendex API
 - [x] Base de datos MySQL
+- [x] Listado de autores nacidos en un rango de años
 
 ### Pendientes
 - [ ] Implementar sistema de favoritos
@@ -98,6 +99,7 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
             - Distribución de libros por siglo
     - Opción 7: Top 10 libros más descargados
     - Opción 8: Buscar autor por nombre
+    - Opción 9: Listar autores nacidos en un rango de años
     - Opción 0: Salir
 
 ## Últimas actualizaciones

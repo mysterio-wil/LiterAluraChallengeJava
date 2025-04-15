@@ -43,6 +43,7 @@ public class Principal {
                     6 - Mostrar estadísticas
                     7 - Top 10 libros más descargados
                     8 - Buscar autor por nombre
+                    9 - Listar autores nacidos en un rango de años
                     
                     0 - Salir
                     """;
@@ -73,6 +74,9 @@ public class Principal {
                         break;
                     case 8:
                         buscarAutorPorNombre();
+                        break;
+                    case 9:
+                        listarAutoresPorRangoNacimiento();
                         break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
@@ -291,6 +295,38 @@ public class Principal {
             } else {
                 System.out.println("No hay libros registrados para este autor.");
             }
+        });
+        System.out.println();
+    }
+
+    private void listarAutoresPorRangoNacimiento() {
+        System.out.println("\nListar autores nacidos en un rango de años");
+        System.out.print("Ingrese el año de inicio: ");
+        Integer inicio = null;
+        Integer fin = null;
+        try {
+            inicio = Integer.parseInt(teclado.nextLine().trim());
+            System.out.print("Ingrese el año de fin: ");
+            fin = Integer.parseInt(teclado.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Por favor, ingrese años válidos.");
+            return;
+        }
+        if (inicio > fin) {
+            System.out.println("El año de inicio no puede ser mayor al año de fin.");
+            return;
+        }
+        var autores = autorRepository.findByRangoNacimiento(inicio, fin);
+        if (autores.isEmpty()) {
+            System.out.printf("No se encontraron autores nacidos entre %d y %d.%n", inicio, fin);
+            return;
+        }
+        System.out.printf("\nAutores nacidos entre %d y %d:%n", inicio, fin);
+        autores.forEach(autor -> {
+            System.out.println("-------------------");
+            System.out.printf("Nombre: %s%n", autor.getNombre());
+            System.out.printf("Año de nacimiento: %s%n", autor.getFechaNacimiento() != null ? autor.getFechaNacimiento() : "Desconocido");
+            System.out.printf("Año de fallecimiento: %s%n", autor.getFechaFallecimiento() != null ? autor.getFechaFallecimiento() : "Desconocido o aún vivo");
         });
         System.out.println();
     }
