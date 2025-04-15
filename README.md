@@ -37,6 +37,7 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 - [x] Sistema de favoritos para libros
 - [x] Exportación de libros y favoritos a CSV o JSON en el escritorio del usuario
 - [x] Búsqueda avanzada de libros por múltiples criterios (título, autor, idioma) desde consola
+- [x] Integración de la pantalla de búsqueda avanzada: el botón 'Buscar libros' ahora abre un formulario gráfico para búsqueda avanzada (BusquedaLibrosView).
 
 ### Pendientes
 - [ ] Implementar sistema de recomendaciones basado en preferencias
@@ -158,6 +159,7 @@ Esto facilita el acceso y manejo de los datos fuera de la aplicación.
 - [x] Verificación de ejecución correcta tanto por consola (Maven) como desde la interfaz de IntelliJ IDEA.
 - [x] Limpieza de archivos auxiliares y scripts innecesarios.
 - [x] Menú principal gráfico con botones para Buscar libros, Favoritos, Exportar datos y Salir, usando JavaFX (MenuPrincipalView).
+- [x] Integración de la pantalla de búsqueda avanzada: el botón 'Buscar libros' ahora abre un formulario gráfico para búsqueda avanzada (BusquedaLibrosView).
 
 > A partir de aquí, el desarrollo continuará implementando las funcionalidades gráficas paso a paso.
 

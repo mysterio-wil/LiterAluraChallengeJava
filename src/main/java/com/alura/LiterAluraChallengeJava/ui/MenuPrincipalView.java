@@ -16,7 +16,10 @@ public class MenuPrincipalView {
         Button btnExportar = new Button("Exportar datos");
         Button btnSalir = new Button("Salir");
 
-        btnBuscar.setOnAction(e -> System.out.println("Buscar libros (pendiente)"));
+        btnBuscar.setOnAction(e -> {
+            BusquedaLibrosView busquedaView = new BusquedaLibrosView();
+            busquedaView.mostrar(stage);
+        });
         btnFavoritos.setOnAction(e -> System.out.println("Favoritos (pendiente)"));
         btnExportar.setOnAction(e -> System.out.println("Exportar datos (pendiente)"));
         btnSalir.setOnAction(e -> stage.close());
