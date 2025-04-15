@@ -25,4 +25,10 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
     Optional<Libro> findByTituloYAutor(@Param("titulo") String titulo, @Param("autor") String autor);
 
     Optional<Libro> findByTitulo(String titulo);
+
+    @Query("SELECT l FROM Libro l WHERE " +
+           "(:titulo IS NULL OR LOWER(TRIM(l.titulo)) LIKE LOWER(CONCAT('%', TRIM(:titulo), '%'))) AND " +
+           "(:autor IS NULL OR LOWER(TRIM(l.autor.nombre)) LIKE LOWER(CONCAT('%', TRIM(:autor), '%'))) AND " +
+           "(:idioma IS NULL OR LOWER(l.idioma) = LOWER(:idioma))")
+    List<Libro> busquedaAvanzada(@Param("titulo") String titulo, @Param("autor") String autor, @Param("idioma") String idioma);
 } 

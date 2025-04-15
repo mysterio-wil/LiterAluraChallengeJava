@@ -56,6 +56,7 @@ public class Principal {
                     11 - Listar libros favoritos
                     12 - Exportar todos los libros
                     13 - Exportar libros favoritos
+                    14 - Búsqueda avanzada de libros
                     
                     0 - Salir
                     """;
@@ -101,6 +102,9 @@ public class Principal {
                         break;
                     case 13:
                         exportarFavoritos();
+                        break;
+                    case 14:
+                        busquedaAvanzadaLibros();
                         break;
                     case 0:
                         System.out.println("Cerrando la aplicación...");
@@ -428,6 +432,34 @@ public class Principal {
                 break;
             default:
                 System.out.println("Opción inválida. Exportación cancelada.");
+        }
+    }
+
+    private void busquedaAvanzadaLibros() {
+        System.out.println("\n--- Búsqueda avanzada de libros ---");
+        System.out.print("Título (puede ser parcial, dejar vacío para omitir): ");
+        String titulo = teclado.nextLine().trim();
+        System.out.print("Autor (dejar vacío para omitir): ");
+        String autor = teclado.nextLine().trim();
+        System.out.print("Idioma (dejar vacío para omitir): ");
+        String idioma = teclado.nextLine().trim();
+
+        List<Libro> resultados = libroRepository.busquedaAvanzada(
+            titulo.isEmpty() ? null : titulo,
+            autor.isEmpty() ? null : autor,
+            idioma.isEmpty() ? null : idioma
+        );
+        if (resultados.isEmpty()) {
+            System.out.println("No se encontraron libros con los criterios proporcionados.");
+        } else {
+            System.out.println("\nResultados:");
+            resultados.forEach(libro -> {
+                System.out.println("Título: " + libro.getTitulo());
+                System.out.println("Autor: " + libro.getAutor().getNombre());
+                System.out.println("Idioma: " + libro.getIdioma());
+                System.out.println("Número de descargas: " + libro.getNumeroDescargas());
+                System.out.println("-------------------");
+            });
         }
     }
 

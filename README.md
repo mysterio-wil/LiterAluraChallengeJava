@@ -35,10 +35,11 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 - [x] Listado de autores nacidos en un rango de años
 - [x] Sistema de favoritos para libros
 - [x] Exportación de libros y favoritos a CSV o JSON en el escritorio del usuario
+- [x] Búsqueda avanzada de libros por múltiples criterios (título, autor, idioma) desde consola
 
 ### Pendientes
-- [ ] Implementar búsqueda avanzada por múltiples criterios
-- [ ] Agregar sistema de recomendaciones basado en preferencias
+- [ ] Implementar sistema de recomendaciones basado en preferencias
+- [ ] Agregar interfaz gráfica
 
 ## Requisitos
 - Java 21 o superior
@@ -104,6 +105,7 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
     - Opción 11: Listar todos los libros favoritos registrados
     - Opción 12: Exportar todos los libros
     - Opción 13: Exportar libros favoritos
+    - Opción 14: Búsqueda avanzada de libros
     - Opción 0: Salir
 
 ### Sistema de Favoritos
@@ -114,6 +116,15 @@ Puedes marcar o desmarcar libros como favoritos y consultar la lista de tus favo
 - **Opción 11:** Listar todos los libros favoritos registrados.
 
 Los favoritos se almacenan en la base de datos y puedes gestionarlos fácilmente desde la interfaz de consola.
+
+### Búsqueda avanzada de libros
+
+Puedes realizar una búsqueda avanzada de libros desde el menú principal (opción 14):
+
+- Filtra por título (parcial), autor y/o idioma (todos los campos son opcionales).
+- Los resultados se muestran en la consola.
+
+> **Nota:** Hasta este punto, todas las consultas y operaciones se realizan mediante la consola. En la siguiente etapa del proyecto, la interacción será migrada a una interfaz gráfica.
 
 ### Exportación de datos
 
@@ -177,6 +188,10 @@ Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](htt
 
 ## Historial de Versiones
 
+### v1.2.0 — Última versión con interfaz de consola
+- Todas las funcionalidades implementadas hasta aquí funcionan mediante consola.
+- A partir de este punto, el desarrollo continuará con la migración a una interfaz gráfica.
+
 ### v1.1.0
 - Nuevo: Sistema de favoritos para libros (marcar, desmarcar y listar favoritos desde el menú)
 
@@ -197,6 +212,5 @@ Link del Proyecto: [https://github.com/mysterio-wil/LiterAluraChallengeJava](htt
 
 ### Próximas Versiones (Planificado)
 - Sistema de recomendaciones
-- Búsqueda avanzada con filtros
 - Interfaz gráfica
 - Estadísticas avanzadas
