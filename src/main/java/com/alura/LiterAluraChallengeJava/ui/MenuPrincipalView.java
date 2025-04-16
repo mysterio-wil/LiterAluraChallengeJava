@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ChoiceDialog;
 import javafx.stage.FileChooser;
 import javafx.scene.layout.BorderPane;
@@ -43,55 +44,68 @@ public class MenuPrincipalView {
         menuArchivo.getItems().addAll(salir);
 
         Menu menuHerramientas = new Menu("Herramientas");
-        MenuItem exportar = new MenuItem("Exportar datos");
-        exportar.setOnAction(e -> {
-            ChoiceDialog<String> formatoDialog = new ChoiceDialog<>("CSV", "CSV", "XLSX");
-            formatoDialog.setTitle("Exportar datos");
-            formatoDialog.setHeaderText("¿En qué formato desea exportar los datos?");
-            formatoDialog.setContentText("Elija el formato:");
-            var result = formatoDialog.showAndWait();
-            if (result.isEmpty()) return;
-            String formato = result.get();
-
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Guardar archivo de libros");
-            if (formato.equalsIgnoreCase("CSV")) {
-                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
-            } else {
-                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"));
-            }
-            File file = fileChooser.showSaveDialog(stage);
-            if (file == null) return;
-
-            List<Libro> libros = libroRepository.findAll();
-            try {
-                if (formato.equalsIgnoreCase("CSV")) {
-                    ExportarLibrosUtil.exportarCSV(libros, file);
-                } else {
-                    ExportarLibrosUtil.exportarXLSX(libros, file);
-                }
-                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Exportación exitosa en: " + file.getAbsolutePath());
-                ok.setTitle("Éxito");
-                ok.showAndWait();
-            } catch (Exception ex) {
-                Alert err = new Alert(Alert.AlertType.ERROR, "Error al exportar: " + ex.getMessage());
-                err.setTitle("Error");
-                err.showAndWait();
-            }
-        });
-        MenuItem importarGutendex = new MenuItem("Importar desde Gutendex");
-        importarGutendex.setOnAction(e -> {
-            BuscarGutendexView buscarGutendexView = SpringContextProvider.getBean(BuscarGutendexView.class);
-            buscarGutendexView.mostrar(stage);
-        });
+        // Sección principal
         MenuItem buscarLibros = new MenuItem("Buscar libros");
+        MenuItem importarGutendex = new MenuItem("Importar desde Gutendex");
+        Menu menuImportarArchivo = new Menu("Importar desde archivo...");
+        MenuItem importarCSV = new MenuItem("CSV");
+        MenuItem importarExcel = new MenuItem("Excel");
+        menuImportarArchivo.getItems().addAll(importarCSV, importarExcel);
+        // Exportar datos como submenú
+        Menu menuExportarDatos = new Menu("Exportar datos");
+        MenuItem exportarCSV = new MenuItem("CSV");
+        MenuItem exportarExcel = new MenuItem("Excel");
+        menuExportarDatos.getItems().addAll(exportarCSV, exportarExcel);
+        MenuItem exportarFavoritos = new MenuItem("Exportar favoritos");
+        menuHerramientas.getItems().addAll(
+            buscarLibros,
+            importarGutendex,
+            menuImportarArchivo,
+            menuExportarDatos,
+            exportarFavoritos,
+            new SeparatorMenuItem()
+        );
+        // Gestión de autores
+        Menu menuAutores = new Menu("Gestión de autores");
+        MenuItem verAutores = new MenuItem("Ver autores");
+        MenuItem agregarAutor = new MenuItem("Agregar autor");
+        MenuItem editarAutor = new MenuItem("Editar autor");
+        MenuItem eliminarAutor = new MenuItem("Eliminar autor");
+        menuAutores.getItems().addAll(verAutores, agregarAutor, editarAutor, eliminarAutor);
+        menuHerramientas.getItems().addAll(menuAutores, new SeparatorMenuItem());
+        // Estadísticas
+        Menu menuEstadisticas = new Menu("Estadísticas");
+        MenuItem librosPorIdioma = new MenuItem("Libros por idioma");
+        MenuItem librosMasDescargados = new MenuItem("Libros más descargados");
+        MenuItem autoresProlificos = new MenuItem("Autores más prolíficos");
+        MenuItem descargasTotales = new MenuItem("Descargas totales");
+        menuEstadisticas.getItems().addAll(librosPorIdioma, librosMasDescargados, autoresProlificos, descargasTotales);
+        menuHerramientas.getItems().addAll(menuEstadisticas, new SeparatorMenuItem());
+        // Respaldar/restaurar
+        MenuItem respaldarBD = new MenuItem("Respaldar base de datos");
+        MenuItem restaurarBD = new MenuItem("Restaurar base de datos");
+        menuHerramientas.getItems().addAll(respaldarBD, restaurarBD, new SeparatorMenuItem());
+        // Configuración
+        Menu menuConfiguracion = new Menu("Configuración");
+        MenuItem tema = new MenuItem("Tema claro/oscuro");
+        MenuItem idioma = new MenuItem("Idioma de la interfaz");
+        menuConfiguracion.getItems().addAll(tema, idioma);
+        menuHerramientas.getItems().addAll(menuConfiguracion, new SeparatorMenuItem());
+        // Ayuda
+        MenuItem ayuda = new MenuItem("Ayuda / Acerca de");
+        menuHerramientas.getItems().addAll(ayuda);
+        // Añadir menús al menú bar
+        menuBar.getMenus().setAll(menuArchivo, menuHerramientas);
+
+        // Handlers para acciones ya implementadas
         buscarLibros.setOnAction(e -> {
             BusquedaLibrosView busquedaView = SpringContextProvider.getBean(BusquedaLibrosView.class);
             busquedaView.mostrar(stage);
         });
-        menuHerramientas.getItems().addAll(exportar, importarGutendex, buscarLibros);
-
-        menuBar.getMenus().addAll(menuArchivo, menuHerramientas);
+        importarGutendex.setOnAction(e -> {
+            BuscarGutendexView buscarGutendexView = SpringContextProvider.getBean(BuscarGutendexView.class);
+            buscarGutendexView.mostrar(stage);
+        });
 
         // Banner central
         Label mensaje = new Label("Bienvenidos a\nLiterAlura");
