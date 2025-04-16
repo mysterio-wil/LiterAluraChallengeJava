@@ -12,7 +12,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ChoiceDialog;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import java.util.List;
@@ -24,23 +27,13 @@ public class MenuPrincipalView {
     private LibroRepository libroRepository;
 
     public void mostrar(Stage stage) {
-        VBox root = new VBox(20);
-        root.setAlignment(Pos.CENTER);
+        BorderPane root = new BorderPane();
 
-        Button btnBuscar = new Button("Buscar libros");
-        Button btnImportarGutendex = new Button("Importar libros desde Gutendex");
-        Button btnExportar = new Button("Exportar datos");
-        Button btnSalir = new Button("Salir");
-
-        btnBuscar.setOnAction(e -> {
-            BusquedaLibrosView busquedaView = SpringContextProvider.getBean(BusquedaLibrosView.class);
-            busquedaView.mostrar(stage);
-        });
-        btnImportarGutendex.setOnAction(e -> {
-            BuscarGutendexView buscarGutendexView = SpringContextProvider.getBean(BuscarGutendexView.class);
-            buscarGutendexView.mostrar(stage);
-        });
-        btnExportar.setOnAction(e -> {
+        // Cinta de opciones (MenuBar)
+        MenuBar menuBar = new MenuBar();
+        Menu menuArchivo = new Menu("Archivo");
+        MenuItem exportar = new MenuItem("Exportar datos");
+        exportar.setOnAction(e -> {
             // 1. Preguntar formato con ChoiceDialog
             ChoiceDialog<String> formatoDialog = new ChoiceDialog<>("CSV", "CSV", "XLSX");
             formatoDialog.setTitle("Exportar datos");
@@ -78,16 +71,38 @@ public class MenuPrincipalView {
                 err.showAndWait();
             }
         });
-        btnSalir.setOnAction(e -> {
+        MenuItem salir = new MenuItem("Salir");
+        salir.setOnAction(e -> {
             stage.close();
             javafx.application.Platform.exit();
             System.exit(0);
         });
+        menuArchivo.getItems().addAll(exportar, salir);
 
-        root.getChildren().addAll(btnBuscar, btnImportarGutendex, btnExportar, btnSalir);
+        Menu menuLibros = new Menu("Libros");
+        MenuItem importarGutendex = new MenuItem("Importar desde Gutendex");
+        importarGutendex.setOnAction(e -> {
+            BuscarGutendexView buscarGutendexView = SpringContextProvider.getBean(BuscarGutendexView.class);
+            buscarGutendexView.mostrar(stage);
+        });
+        MenuItem buscarLibros = new MenuItem("Buscar libros");
+        buscarLibros.setOnAction(e -> {
+            BusquedaLibrosView busquedaView = SpringContextProvider.getBean(BusquedaLibrosView.class);
+            busquedaView.mostrar(stage);
+        });
+        menuLibros.getItems().addAll(importarGutendex, buscarLibros);
 
-        Scene scene = new Scene(root, 400, 320);
-        stage.setTitle("LiterAlura - Menú Principal");
+        // Puedes agregar más menús aquí (Autores, Estadísticas, etc.)
+
+        menuBar.getMenus().addAll(menuArchivo, menuLibros);
+        root.setTop(menuBar);
+
+        // Vista principal: consulta de libros
+        BusquedaLibrosView busquedaView = SpringContextProvider.getBean(BusquedaLibrosView.class);
+        root.setCenter(busquedaView.crearPanel());
+
+        Scene scene = new Scene(root, 800, 600);
+        stage.setTitle("LiterAlura - Catálogo de Libros");
         stage.setScene(scene);
         stage.show();
     }

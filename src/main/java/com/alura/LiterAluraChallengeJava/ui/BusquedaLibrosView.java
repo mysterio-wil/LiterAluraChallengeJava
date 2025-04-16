@@ -97,4 +97,67 @@ public class BusquedaLibrosView {
         stage.setScene(scene);
         stage.show();
     }
+
+    // NUEVO: método para integración con BorderPane
+    public VBox crearPanel() {
+        Label lblTitulo = new Label("Título:");
+        TextField txtTitulo = new TextField();
+        Label lblAutor = new Label("Autor:");
+        TextField txtAutor = new TextField();
+        Label lblIdioma = new Label("Idioma:");
+        TextField txtIdioma = new TextField();
+        Button btnBuscar = new Button("Buscar");
+        TableView<Libro> tablaResultados = new TableView<>();
+        TableColumn<Libro, String> colTitulo = new TableColumn<>("Título");
+        colTitulo.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTitulo()));
+        TableColumn<Libro, String> colAutor = new TableColumn<>("Autor");
+        colAutor.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
+                data.getValue().getAutor() != null ? data.getValue().getAutor().getNombre() : ""));
+        TableColumn<Libro, String> colIdioma = new TableColumn<>("Idioma");
+        colIdioma.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getIdioma()));
+        TableColumn<Libro, Integer> colDescargas = new TableColumn<>("Descargas");
+        colDescargas.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(
+                data.getValue().getNumeroDescargas() != null ? data.getValue().getNumeroDescargas() : 0).asObject());
+        tablaResultados.getColumns().addAll(colTitulo, colAutor, colIdioma, colDescargas);
+        Label lblMensaje = new Label();
+        lblMensaje.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+        btnBuscar.setOnAction(e -> {
+            String titulo = txtTitulo.getText();
+            String autor = txtAutor.getText();
+            String idioma = txtIdioma.getText();
+            lblMensaje.setText("");
+            if ((titulo == null || titulo.trim().isEmpty()) &&
+                (autor == null || autor.trim().isEmpty()) &&
+                (idioma == null || idioma.trim().isEmpty())) {
+                lblMensaje.setText("No ingresó ningún parámetro de búsqueda");
+                tablaResultados.setItems(FXCollections.observableArrayList());
+                return;
+            }
+            List<Libro> resultados = controller.buscarLibros(titulo, autor, idioma);
+            if (resultados == null || resultados.isEmpty()) {
+                lblMensaje.setText("No se encontró ningún resultado");
+            } else {
+                lblMensaje.setText("");
+            }
+            ObservableList<Libro> data = FXCollections.observableArrayList(resultados);
+            tablaResultados.setItems(data);
+        });
+        GridPane form = new GridPane();
+        form.setAlignment(Pos.CENTER);
+        form.setHgap(10);
+        form.setVgap(10);
+        form.setPadding(new Insets(20));
+        form.add(lblTitulo, 0, 0);
+        form.add(txtTitulo, 1, 0);
+        form.add(lblAutor, 0, 1);
+        form.add(txtAutor, 1, 1);
+        form.add(lblIdioma, 0, 2);
+        form.add(txtIdioma, 1, 2);
+        HBox botones = new HBox(10, btnBuscar);
+        botones.setAlignment(Pos.CENTER);
+        VBox vbox = new VBox(20, form, botones, lblMensaje, tablaResultados);
+        vbox.setAlignment(Pos.TOP_CENTER);
+        vbox.setPadding(new Insets(20));
+        return vbox;
+    }
 }

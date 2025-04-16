@@ -40,10 +40,11 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 - [x] Integración de la pantalla de búsqueda avanzada: el botón 'Buscar libros' ahora abre un formulario gráfico para búsqueda avanzada (BusquedaLibrosView).
 - [x] **Exportación desde interfaz gráfica:** Ahora puedes exportar todos los libros a CSV o Excel (XLSX) desde la opción "Exportar datos" en el menú principal de la interfaz JavaFX. El usuario elige el formato y la ubicación del archivo, y recibe mensajes claros de éxito o error.
 - [x] **Menú principal mejorado:** El menú principal ahora es más limpio (eliminado botón de Favoritos) y utiliza un flujo moderno para la exportación.
+- [x] **Nueva interfaz con cinta de opciones:** La aplicación ahora utiliza una barra de menú superior (MenuBar) y un panel central dinámico. Al iniciar, se muestra la consulta de libros disponibles en la base de datos con filtros rápidos. Todas las demás funcionalidades están accesibles desde la barra de menú.
 
 ### Pendientes
 - [ ] Implementar sistema de recomendaciones basado en preferencias
-- [ ] Mejorar la experiencia de usuario con barra de menú superior (MenuBar) y panel central dinámico.
+- [ ] Mejorar la experiencia de usuario con paneles contextuales y más filtros en la tabla principal.
 
 ## Requisitos
 - Java 21 o superior
@@ -84,8 +85,12 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
    ./mvnw spring-boot:run
    ```
 
-2. **Exportar libros desde la interfaz gráfica:**
-   - Abre la aplicación y selecciona "Exportar datos" en el menú principal.
+2. **Pantalla principal y cinta de opciones:**
+   - Al iniciar, verás todos los libros disponibles en la base de datos y podrás filtrarlos por título, autor o idioma.
+   - Las demás funcionalidades (exportar, importar, buscar, salir) están en la barra superior de menú.
+
+3. **Exportar libros desde la interfaz gráfica:**
+   - Selecciona "Exportar datos" en el menú superior.
    - Elige el formato de exportación (CSV o Excel).
    - Selecciona la ubicación y nombre del archivo a guardar.
    - Recibirás un mensaje de confirmación o error según corresponda.
