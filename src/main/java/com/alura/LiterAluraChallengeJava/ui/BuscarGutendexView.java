@@ -35,6 +35,7 @@ public class BuscarGutendexView {
         TextField txtIdioma = new TextField();
 
         Button btnBuscar = new Button("Buscar en Gutendex");
+        Button btnImportar = new Button("Importar a base de datos");
         Button btnVolver = new Button("Volver");
 
         Label lblMensaje = new Label();
@@ -62,7 +63,7 @@ public class BuscarGutendexView {
         form.add(lblIdioma, 0, 2);
         form.add(txtIdioma, 1, 2);
 
-        HBox botones = new HBox(10, btnBuscar, btnVolver);
+        HBox botones = new HBox(10, btnBuscar, btnImportar, btnVolver);
         botones.setAlignment(Pos.CENTER);
 
         VBox vbox = new VBox(20, form, botones, lblMensaje, tablaResultados);
@@ -93,6 +94,57 @@ public class BuscarGutendexView {
                     Platform.runLater(() -> {
                         lblMensaje.setText("Error al consultar la API de Gutendex");
                         btnBuscar.setDisable(false);
+                    });
+                }
+            }).start();
+        });
+
+        btnImportar.setOnAction(e -> {
+            LibroGutendexDTO seleccionado = tablaResultados.getSelectionModel().getSelectedItem();
+            if (seleccionado == null) {
+                lblMensaje.setText("Seleccione un libro para importar.");
+                return;
+            }
+            lblMensaje.setText("");
+            btnImportar.setDisable(true);
+            new Thread(() -> {
+                try {
+                    // Obtener repositorios desde Spring
+                    var libroRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
+                        com.alura.LiterAluraChallengeJava.repository.LibroRepository.class);
+                    var autorRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
+                        com.alura.LiterAluraChallengeJava.repository.AutorRepository.class);
+                    // Buscar o crear autor
+                    String nombreAutor = seleccionado.getAutores();
+                    com.alura.LiterAluraChallengeJava.model.Autor autor = autorRepo.findByNombre(nombreAutor)
+                        .orElseGet(() -> autorRepo.save(new com.alura.LiterAluraChallengeJava.model.Autor(nombreAutor, null, null)));
+                    // Buscar si ya existe el libro
+                    boolean existe = libroRepo.findByTituloYAutor(seleccionado.getTitulo(), nombreAutor).isPresent();
+                    if (existe) {
+                        Platform.runLater(() -> {
+                            lblMensaje.setText("El libro ya existe en la base de datos.");
+                            btnImportar.setDisable(false);
+                        });
+                        return;
+                    }
+                    // Crear y guardar libro
+                    com.alura.LiterAluraChallengeJava.model.Libro libro = new com.alura.LiterAluraChallengeJava.model.Libro(
+                        seleccionado.getTitulo(),
+                        seleccionado.getIdioma(),
+                        seleccionado.getDescargas(),
+                        autor
+                    );
+                    libroRepo.save(libro);
+                    Platform.runLater(() -> {
+                        lblMensaje.setStyle("-fx-text-fill: green; -fx-font-size: 12px;");
+                        lblMensaje.setText("Libro importado correctamente.");
+                        btnImportar.setDisable(false);
+                    });
+                } catch (Exception ex) {
+                    Platform.runLater(() -> {
+                        lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px;");
+                        lblMensaje.setText("Error al importar el libro: " + ex.getMessage());
+                        btnImportar.setDisable(false);
                     });
                 }
             }).start();

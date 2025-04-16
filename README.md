@@ -152,6 +152,26 @@ Ahora puedes buscar libros directamente en la API de Gutendex desde la aplicaci�
 - Buscar: `quijote` → muestra resultados.
 - Buscar: `don quijote` → puede no mostrar resultados (probar solo con `quijote`).
 
+### Importar libros desde Gutendex a la base de datos local
+
+Ahora puedes importar cualquier libro encontrado en la búsqueda Gutendex directamente a tu base de datos local.
+
+#### ¿Cómo funciona?
+1. Busca un libro usando una palabra clave relevante del título.
+2. Selecciona el libro deseado en la tabla de resultados.
+3. Haz clic en **"Importar a base de datos"**.
+4. El sistema:
+    - Busca o crea el autor en tu base de datos.
+    - Verifica si el libro ya existe (por título y autor).
+    - Si no existe, lo guarda en la base de datos local.
+    - Muestra un mensaje de éxito, advertencia si ya existe, o error si ocurre algún problema.
+
+> **Nota:** Solo se permite importar un libro a la vez. Si el libro ya existe, recibirás una advertencia.
+
+#### Ejemplo visual
+- Buscar: `quijote` → seleccionar un resultado → **Importar a base de datos**.
+- Si el libro ya está en la base local, verás un mensaje indicando que ya existe.
+
 ### Exportación de datos
 
 Puedes exportar la lista de libros registrados o tus libros favoritos desde el menú principal:
