@@ -15,6 +15,7 @@ public class MenuPrincipalView {
         root.setAlignment(Pos.CENTER);
 
         Button btnBuscar = new Button("Buscar libros");
+        Button btnImportarGutendex = new Button("Importar libros desde Gutendex");
         Button btnFavoritos = new Button("Favoritos");
         Button btnExportar = new Button("Exportar datos");
         Button btnSalir = new Button("Salir");
@@ -22,6 +23,10 @@ public class MenuPrincipalView {
         btnBuscar.setOnAction(e -> {
             BusquedaLibrosView busquedaView = SpringContextProvider.getBean(BusquedaLibrosView.class);
             busquedaView.mostrar(stage);
+        });
+        btnImportarGutendex.setOnAction(e -> {
+            BuscarGutendexView buscarGutendexView = SpringContextProvider.getBean(BuscarGutendexView.class);
+            buscarGutendexView.mostrar(stage);
         });
         btnFavoritos.setOnAction(e -> System.out.println("Favoritos (pendiente)"));
         btnExportar.setOnAction(e -> System.out.println("Exportar datos (pendiente)"));
@@ -31,9 +36,9 @@ public class MenuPrincipalView {
             System.exit(0);
         });
 
-        root.getChildren().addAll(btnBuscar, btnFavoritos, btnExportar, btnSalir);
+        root.getChildren().addAll(btnBuscar, btnImportarGutendex, btnFavoritos, btnExportar, btnSalir);
 
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root, 400, 320);
         stage.setTitle("LiterAlura - Menú Principal");
         stage.setScene(scene);
         stage.show();

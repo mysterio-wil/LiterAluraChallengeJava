@@ -133,6 +133,25 @@ A partir de la versión 1.1.0, la búsqueda avanzada de libros se realiza desde 
 
 > La integración entre JavaFX y Spring Boot permite que todas las vistas y controladores usen inyección de dependencias correctamente.
 
+### Nueva función: Búsqueda de libros en Gutendex desde la interfaz gráfica
+
+Ahora puedes buscar libros directamente en la API de Gutendex desde la aplicación JavaFX.
+
+#### ¿Cómo funciona?
+- Accede desde el menú principal con el botón **"Importar libros desde Gutendex"**.
+- Ingresa una **palabra clave** relevante del título (ejemplo: `quijote`, `pride`, etc.).
+- (Opcional) Puedes filtrar por idioma usando el código ISO (ej: `es` para español, `en` para inglés).
+- Haz clic en **Buscar en Gutendex**.
+- Si hay resultados, se muestran en una tabla con título, autor, idioma y descargas.
+- Si no hay resultados, se sugiere probar con una sola palabra clave o variantes del título.
+- Usa el botón **Volver** para regresar al menú principal.
+
+> **Nota:** La búsqueda en Gutendex es literal: funciona mejor con una sola palabra clave relevante.
+
+#### Ejemplo visual
+- Buscar: `quijote` → muestra resultados.
+- Buscar: `don quijote` → puede no mostrar resultados (probar solo con `quijote`).
+
 ### Exportación de datos
 
 Puedes exportar la lista de libros registrados o tus libros favoritos desde el menú principal:
