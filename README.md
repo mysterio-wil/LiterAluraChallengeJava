@@ -38,10 +38,12 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 - [x] Exportación de libros y favoritos a CSV o JSON en el escritorio del usuario
 - [x] Búsqueda avanzada de libros por múltiples criterios (título, autor, idioma) desde consola
 - [x] Integración de la pantalla de búsqueda avanzada: el botón 'Buscar libros' ahora abre un formulario gráfico para búsqueda avanzada (BusquedaLibrosView).
+- [x] **Exportación desde interfaz gráfica:** Ahora puedes exportar todos los libros a CSV o Excel (XLSX) desde la opción "Exportar datos" en el menú principal de la interfaz JavaFX. El usuario elige el formato y la ubicación del archivo, y recibe mensajes claros de éxito o error.
+- [x] **Menú principal mejorado:** El menú principal ahora es más limpio (eliminado botón de Favoritos) y utiliza un flujo moderno para la exportación.
 
 ### Pendientes
 - [ ] Implementar sistema de recomendaciones basado en preferencias
-- [ ] Agregar interfaz gráfica
+- [ ] Mejorar la experiencia de usuario con barra de menú superior (MenuBar) y panel central dinámico.
 
 ## Requisitos
 - Java 21 o superior
@@ -82,112 +84,11 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
    ./mvnw spring-boot:run
    ```
 
-2. Menú de opciones:
-    - Opción 1: Buscar libro por título
-    - Opción 2: Listar libros registrados
-    - Opción 3: Listar autores registrados
-    - Opción 4: Listar autores vivos en un año específico
-    - Opción 5: Listar libros por idioma
-    - Opción 6: Mostrar estadísticas
-        - Estadísticas de Libros
-            - Total de libros
-            - Distribución por idioma
-            - Estadísticas de descargas
-        - Estadísticas de Autores
-            - Total de autores
-            - Promedio de libros por autor
-            - Estadísticas de edad de autores
-        - Estadísticas Combinadas
-            - Estadísticas de descargas por autor
-            - Distribución de libros por siglo
-    - Opción 7: Top 10 libros más descargados
-    - Opción 8: Buscar autor por nombre
-    - Opción 9: Listar autores nacidos en un rango de años
-    - Opción 10: Marcar o desmarcar un libro como favorito (por título exacto)
-    - Opción 11: Listar todos los libros favoritos registrados
-    - Opción 12: Exportar todos los libros
-    - Opción 13: Exportar libros favoritos
-    - Opción 14: Búsqueda avanzada de libros
-    - Opción 0: Salir
-
-### Sistema de Favoritos
-
-Puedes marcar o desmarcar libros como favoritos y consultar la lista de tus favoritos desde el menú principal:
-
-- **Opción 10:** Marcar o desmarcar un libro como favorito (por título exacto).
-- **Opción 11:** Listar todos los libros favoritos registrados.
-
-Los favoritos se almacenan en la base de datos y puedes gestionarlos fácilmente desde la interfaz de consola.
-
-### Búsqueda avanzada de libros (Interfaz Gráfica)
-
-A partir de la versión 1.1.0, la búsqueda avanzada de libros se realiza desde una interfaz gráfica JavaFX:
-
-- Accede desde el menú principal con el botón **"Buscar libros"**.
-- Puedes filtrar por título, autor y/o idioma (todos los campos son opcionales).
-- Si no ingresas ningún parámetro, se mostrará el mensaje: _"No ingresó ningún parámetro de búsqueda"_ debajo de los botones.
-- Si no se encuentra ningún resultado, se mostrará el mensaje: _"No se encontró ningún resultado"_ en el mismo lugar.
-- Los resultados aparecen en una tabla dentro de la misma ventana.
-- El botón **"Volver"** te regresa al menú principal.
-- El botón **"Salir"** cierra completamente la aplicación.
-
-> La integración entre JavaFX y Spring Boot permite que todas las vistas y controladores usen inyección de dependencias correctamente.
-
-### Nueva función: Búsqueda de libros en Gutendex desde la interfaz gráfica
-
-Ahora puedes buscar libros directamente en la API de Gutendex desde la aplicación JavaFX.
-
-#### ¿Cómo funciona?
-- Accede desde el menú principal con el botón **"Importar libros desde Gutendex"**.
-- Ingresa una **palabra clave** relevante del título (ejemplo: `quijote`, `pride`, etc.).
-- (Opcional) Puedes filtrar por idioma usando el código ISO (ej: `es` para español, `en` para inglés).
-- Haz clic en **Buscar en Gutendex**.
-- Si hay resultados, se muestran en una tabla con título, autor, idioma y descargas.
-- Si no hay resultados, se sugiere probar con una sola palabra clave o variantes del título.
-- Usa el botón **Volver** para regresar al menú principal.
-
-> **Nota:** La búsqueda en Gutendex es literal: funciona mejor con una sola palabra clave relevante.
-
-#### Ejemplo visual
-- Buscar: `quijote` → muestra resultados.
-- Buscar: `don quijote` → puede no mostrar resultados (probar solo con `quijote`).
-
-### Importar libros desde Gutendex a la base de datos local
-
-Ahora puedes importar cualquier libro encontrado en la búsqueda Gutendex directamente a tu base de datos local.
-
-#### ¿Cómo funciona?
-1. Busca un libro usando una palabra clave relevante del título.
-2. Selecciona el libro deseado en la tabla de resultados.
-3. Haz clic en **"Importar a base de datos"**.
-4. El sistema:
-    - Busca o crea el autor en tu base de datos.
-    - Verifica si el libro ya existe (por título y autor).
-    - Si no existe, lo guarda en la base de datos local.
-    - Muestra un mensaje de éxito, advertencia si ya existe, o error si ocurre algún problema.
-
-> **Nota:** Solo se permite importar un libro a la vez. Si el libro ya existe, recibirás una advertencia.
-
-#### Ejemplo visual
-- Buscar: `quijote` → seleccionar un resultado → **Importar a base de datos**.
-- Si el libro ya está en la base local, verás un mensaje indicando que ya existe.
-
-### Exportación de datos
-
-Puedes exportar la lista de libros registrados o tus libros favoritos desde el menú principal:
-
-- **Opción 12:** Exportar todos los libros
-- **Opción 13:** Exportar libros favoritos
-
-Al seleccionar una opción, elige el formato de exportación:
-- **1:** CSV
-- **2:** JSON
-
-Los archivos exportados se guardarán automáticamente en tu escritorio con los siguientes nombres:
-- `libros.csv` o `libros.json`
-- `favoritos.csv` o `favoritos.json`
-
-Esto facilita el acceso y manejo de los datos fuera de la aplicación.
+2. **Exportar libros desde la interfaz gráfica:**
+   - Abre la aplicación y selecciona "Exportar datos" en el menú principal.
+   - Elige el formato de exportación (CSV o Excel).
+   - Selecciona la ubicación y nombre del archivo a guardar.
+   - Recibirás un mensaje de confirmación o error según corresponda.
 
 ## Últimas actualizaciones
 - Implementación de un sistema completo de estadísticas con menús anidados
