@@ -299,6 +299,56 @@ public class MenuPrincipalView {
             }
         });
 
+        // Handlers para exportar datos (CSV y Excel)
+        exportarCSV.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar libros como CSV");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
+            File file = fileChooser.showSaveDialog(stage);
+            if (file == null) return;
+            try {
+                List<Libro> libros = libroRepository.findAll();
+                if (libros.isEmpty()) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "No hay libros para exportar.");
+                    alert.setTitle("Exportar CSV");
+                    alert.showAndWait();
+                    return;
+                }
+                ExportarLibrosUtil.exportarCSV(libros, file);
+                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Exportación CSV exitosa. Archivo guardado en: " + file.getAbsolutePath());
+                ok.setTitle("Éxito");
+                ok.showAndWait();
+            } catch (Exception ex) {
+                Alert err = new Alert(Alert.AlertType.ERROR, "Error al exportar CSV: " + ex.getMessage());
+                err.setTitle("Error");
+                err.showAndWait();
+            }
+        });
+        exportarExcel.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar libros como Excel");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"));
+            File file = fileChooser.showSaveDialog(stage);
+            if (file == null) return;
+            try {
+                List<Libro> libros = libroRepository.findAll();
+                if (libros.isEmpty()) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "No hay libros para exportar.");
+                    alert.setTitle("Exportar Excel");
+                    alert.showAndWait();
+                    return;
+                }
+                ExportarLibrosUtil.exportarXLSX(libros, file);
+                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Exportación Excel exitosa. Archivo guardado en: " + file.getAbsolutePath());
+                ok.setTitle("Éxito");
+                ok.showAndWait();
+            } catch (Exception ex) {
+                Alert err = new Alert(Alert.AlertType.ERROR, "Error al exportar Excel: " + ex.getMessage());
+                err.setTitle("Error");
+                err.showAndWait();
+            }
+        });
+
         // Banner central
         Label mensaje = new Label("Bienvenidos a\nLiterAlura");
         mensaje.setStyle("-fx-font-size: 48px; -fx-font-family: 'Comic Sans MS', 'Comic Sans', cursive; -fx-text-alignment: center; -fx-font-weight: bold; -fx-text-fill: #222;");

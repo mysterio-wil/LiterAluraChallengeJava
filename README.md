@@ -38,7 +38,19 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 - [x] Exportación de libros y favoritos a CSV o JSON en el escritorio del usuario
 - [x] Búsqueda avanzada de libros por múltiples criterios (título, autor, idioma) desde consola
 - [x] Integración de la pantalla de búsqueda avanzada: el botón 'Buscar libros' ahora abre un formulario gráfico para búsqueda avanzada (BusquedaLibrosView).
-- [x] **Exportación desde interfaz gráfica:** Ahora puedes exportar todos los libros a CSV o Excel (XLSX) desde la opción "Exportar datos" en el menú principal de la interfaz JavaFX. El usuario elige el formato y la ubicación del archivo, y recibe mensajes claros de éxito o error.
+feat: exportación de libros a CSV y Excel desde la interfaz
+
+- Implementados los handlers para exportar libros en formatos CSV y Excel desde el menú Herramientas > Exportar datos.
+- Diálogo para elegir ubicación y nombre del archivo a exportar.
+- Mensajes claros al usuario en caso de éxito, error o si no hay libros para exportar.
+- Se utiliza ExportarLibrosUtil para la generación de archivos.
+- Actualización del README: instrucciones detalladas sobre cómo usar la exportación y formato de los archivos generados.feat: exportación de libros a CSV y Excel desde la interfaz
+
+- Implementados los handlers para exportar libros en formatos CSV y Excel desde el menú Herramientas > Exportar datos.
+- Diálogo para elegir ubicación y nombre del archivo a exportar.
+- Mensajes claros al usuario en caso de éxito, error o si no hay libros para exportar.
+- Se utiliza ExportarLibrosUtil para la generación de archivos.
+- Actualización del README: instrucciones detalladas sobre cómo usar la exportación y formato de los archivos generados.- [x] **Exportación desde interfaz gráfica:** Ahora puedes exportar todos los libros a CSV o Excel (XLSX) desde la opción "Exportar datos" en el menú principal de la interfaz JavaFX. El usuario elige el formato y la ubicación del archivo, y recibe mensajes claros de éxito o error.
 - [x] **Menú principal mejorado:** El menú principal ahora es más limpio (eliminado botón de Favoritos) y utiliza un flujo moderno para la exportación.
 - [x] **Nueva interfaz con cinta de opciones:** La aplicación ahora utiliza una barra de menú superior (MenuBar) y un panel central dinámico. Al iniciar, se muestra la consulta de libros disponibles en la base de datos con filtros rápidos. Todas las demás funcionalidades están accesibles desde la barra de menú.
 - [x] **Pantalla principal minimalista:** Al iniciar, se muestra únicamente un mensaje de bienvenida (“Bienvenidos a LiterAlura”) y el menú superior. Todas las funcionalidades (búsqueda, exportar, importar, etc.) se acceden desde el menú.
@@ -114,6 +126,28 @@ Puedes importar libros y autores desde archivos **CSV** o **Excel (.xlsx)** usan
 - Los autores se crean o actualizan automáticamente. Si ya existen, se actualizan los años si vienen en el archivo.
 - No se permiten duplicados: se compara título, autor e idioma (de forma normalizada, ignorando tildes, mayúsculas y espacios).
 - Si el archivo contiene datos inválidos, la fila será ignorada y se notificará al usuario.
+
+## Exportación de libros a CSV y Excel
+
+Puedes exportar el catálogo de libros desde el menú "Herramientas > Exportar datos" en los formatos **CSV** o **Excel (.xlsx)**.
+
+- Al seleccionar la opción, elige la ubicación y el nombre del archivo a guardar.
+- Si no hay libros en la base de datos, se mostrará un mensaje informativo.
+- Si la exportación es exitosa, se notificará la ruta del archivo guardado.
+- Si ocurre un error, se mostrará un mensaje detallando el problema.
+
+**Formato de exportación:**
+
+- **CSV:**
+    - Columnas: Título, Autor, Idioma, Descargas
+    - Codificación: UTF-8
+- **Excel (.xlsx):**
+    - Hoja llamada "Libros" con las mismas columnas que el CSV
+
+**Ejemplo de fila (CSV):**
+
+    "Don Quijote","Miguel de Cervantes",es,17635
+    "Pride and Prejudice","Jane Austen",en,60004
 
 ## Últimas actualizaciones
 - Implementación de un sistema completo de estadísticas con menús anidados
