@@ -31,4 +31,7 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
            "(:autor IS NULL OR LOWER(TRIM(l.autor.nombre)) LIKE LOWER(CONCAT('%', TRIM(:autor), '%'))) AND " +
            "(:idioma IS NULL OR LOWER(l.idioma) = LOWER(:idioma))")
     List<Libro> busquedaAvanzada(@Param("titulo") String titulo, @Param("autor") String autor, @Param("idioma") String idioma);
+
+    @Query("SELECT l FROM Libro l WHERE LOWER(TRIM(l.titulo)) = LOWER(TRIM(:titulo)) AND l.autor.nombre = :autor AND LOWER(TRIM(l.idioma)) = LOWER(TRIM(:idioma))")
+    Optional<Libro> findByTituloAutorYIdioma(@Param("titulo") String titulo, @Param("autor") String autor, @Param("idioma") String idioma);
 } 

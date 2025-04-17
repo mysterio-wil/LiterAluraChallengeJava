@@ -89,6 +89,32 @@ Aplicación Spring Boot que gestiona un catálogo de libros conectándose a la A
 2. Al iniciar, verás una pantalla limpia con el mensaje “Bienvenidos a LiterAlura” y el menú superior.
 3. Usa el menú (“Archivo”, “Herramientas”) para acceder a todas las funcionalidades: buscar libros, importar, exportar, salir, etc.
 
+## Importación de libros y autores desde archivo CSV o Excel
+
+Puedes importar libros y autores desde archivos **CSV** o **Excel (.xlsx)** usando la opción "Importar desde archivo..." en el menú principal.
+
+**Formato y orden de columnas requerido:**
+
+    titulo,autor,idioma,fechaNacimiento,fechaFallecimiento,descargas
+
+- **titulo**: Título del libro (obligatorio)
+- **autor**: Nombre completo del autor (obligatorio)
+- **idioma**: Código del idioma (obligatorio, ej: es, en, fr)
+- **fechaNacimiento**: Año de nacimiento del autor (opcional, numérico)
+- **fechaFallecimiento**: Año de fallecimiento del autor (opcional, numérico)
+- **descargas**: Número de descargas del libro (opcional, numérico)
+
+**Ejemplo de fila:**
+
+    Don Quijote,Miguel de Cervantes,es,1547,1616,17635
+    Pride and Prejudice,Jane Austen,en,1775,1817,60004
+
+**Reglas importantes:**
+- El **orden de las columnas es obligatorio**. Si el encabezado no coincide exactamente, la importación será rechazada.
+- Los autores se crean o actualizan automáticamente. Si ya existen, se actualizan los años si vienen en el archivo.
+- No se permiten duplicados: se compara título, autor e idioma (de forma normalizada, ignorando tildes, mayúsculas y espacios).
+- Si el archivo contiene datos inválidos, la fila será ignorada y se notificará al usuario.
+
 ## Últimas actualizaciones
 - Implementación de un sistema completo de estadísticas con menús anidados
 - Mejora en la organización del código con nueva clase MenuEstadisticas

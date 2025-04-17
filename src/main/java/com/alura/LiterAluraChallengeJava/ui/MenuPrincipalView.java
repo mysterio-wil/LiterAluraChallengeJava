@@ -4,6 +4,8 @@ import com.alura.LiterAluraChallengeJava.SpringContextProvider;
 import com.alura.LiterAluraChallengeJava.repository.LibroRepository;
 import com.alura.LiterAluraChallengeJava.model.Libro;
 import com.alura.LiterAluraChallengeJava.util.ExportarLibrosUtil;
+import com.alura.LiterAluraChallengeJava.repository.AutorRepository;
+import com.alura.LiterAluraChallengeJava.model.Autor;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -21,13 +23,35 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 @Component
 public class MenuPrincipalView {
     @Autowired
     private LibroRepository libroRepository;
+    @Autowired
+    private AutorRepository autorRepository;
+
+    // --- Utilidad para normalizar cadenas (título, autor) ---
+    public static String normalizar(String s) {
+        if (s == null) return "";
+        return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .replaceAll("[^a-zA-Z0-9 ]", "")
+                .toLowerCase()
+                .replaceAll("\\s+", " ")
+                .trim();
+    }
 
     public void mostrar(Stage stage) {
         BorderPane root = new BorderPane();
@@ -105,6 +129,174 @@ public class MenuPrincipalView {
         importarGutendex.setOnAction(e -> {
             BuscarGutendexView buscarGutendexView = SpringContextProvider.getBean(BuscarGutendexView.class);
             buscarGutendexView.mostrar(stage);
+        });
+
+        // Handlers para importar desde archivo (CSV y Excel)
+        importarCSV.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Seleccionar archivo CSV");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
+            File file = fileChooser.showOpenDialog(stage);
+            if (file == null) return;
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line;
+                boolean firstLine = true;
+                int columnasEsperadas = 6;
+                int totalLeidos = 0;
+                int totalDuplicados = 0;
+                List<Libro> librosImportados = new ArrayList<>();
+                // Validar encabezado
+                String encabezado = br.readLine();
+                String encabezadoEsperado = "titulo,autor,idioma,fechaNacimiento,fechaFallecimiento,descargas";
+                if (encabezado == null || !encabezado.replaceAll("\\s+", "").equalsIgnoreCase(encabezadoEsperado)) {
+                    Alert err = new Alert(Alert.AlertType.ERROR, "El archivo no tiene el encabezado correcto.\nSe espera: " + encabezadoEsperado);
+                    err.setTitle("Error de formato");
+                    err.showAndWait();
+                    return;
+                }
+                while ((line = br.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+                    String[] parts = line.split(",");
+                    if (parts.length != columnasEsperadas) continue;
+                    String titulo = parts[0].replaceAll("^\"|\"$", "");
+                    String autorNombre = parts[1].replaceAll("^\"|\"$", "");
+                    String idiomaLibro = parts[2];
+                    Integer fechaNacimiento = null;
+                    Integer fechaFallecimiento = null;
+                    try { fechaNacimiento = parts[3].trim().isEmpty() ? null : Integer.parseInt(parts[3].trim()); } catch (Exception ignored) {}
+                    try { fechaFallecimiento = parts[4].trim().isEmpty() ? null : Integer.parseInt(parts[4].trim()); } catch (Exception ignored) {}
+                    int descargas = 0;
+                    try { descargas = parts[5].trim().isEmpty() ? 0 : Integer.parseInt(parts[5].trim()); } catch (Exception ignored) {}
+                    final Integer fnac = fechaNacimiento;
+                    final Integer ffalle = fechaFallecimiento;
+                    Optional<Autor> autorOpt = autorRepository.findByNombre(autorNombre);
+                    Autor autor;
+                    if (autorOpt.isPresent()) {
+                        autor = autorOpt.get();
+                        if (fnac != null) autor.setFechaNacimiento(fnac);
+                        if (ffalle != null) autor.setFechaFallecimiento(ffalle);
+                        autorRepository.save(autor);
+                    } else {
+                        autor = new Autor();
+                        autor.setNombre(autorNombre);
+                        autor.setFechaNacimiento(fnac);
+                        autor.setFechaFallecimiento(ffalle);
+                        autor = autorRepository.save(autor);
+                    }
+                    // Normalización para comparación de duplicados
+                    String tituloNorm = normalizar(titulo);
+                    String autorNorm = normalizar(autorNombre);
+                    boolean existe = libroRepository.findAll().stream()
+                            .anyMatch(l -> normalizar(l.getTitulo()).equals(tituloNorm)
+                                    && normalizar(l.getAutor().getNombre()).equals(autorNorm)
+                                    && normalizar(l.getIdioma()).equals(normalizar(idiomaLibro)));
+                    if (existe) {
+                        totalDuplicados++;
+                        continue;
+                    }
+                    Libro libro = new Libro();
+                    libro.setTitulo(titulo);
+                    libro.setAutor(autor);
+                    libro.setIdioma(idiomaLibro);
+                    libro.setNumeroDescargas(descargas);
+                    librosImportados.add(libro);
+                    totalLeidos++;
+                }
+                libroRepository.saveAll(librosImportados);
+                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Importación CSV exitosa: " + totalLeidos + " libros importados. " + totalDuplicados + " duplicados ignorados.");
+                ok.setTitle("Éxito");
+                ok.showAndWait();
+            } catch (Exception ex) {
+                Alert err = new Alert(Alert.AlertType.ERROR, "Error al importar CSV: " + ex.getMessage());
+                err.setTitle("Error");
+                err.showAndWait();
+            }
+        });
+        importarExcel.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Seleccionar archivo Excel");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"));
+            File file = fileChooser.showOpenDialog(stage);
+            if (file == null) return;
+            try (FileInputStream fis = new FileInputStream(file)) {
+                Workbook workbook = new XSSFWorkbook(fis);
+                org.apache.poi.ss.usermodel.Sheet sheet = workbook.getSheetAt(0);
+                int columnasEsperadas = 6;
+                int totalLeidos = 0;
+                int totalDuplicados = 0;
+                List<Libro> librosImportados = new ArrayList<>();
+                // Validar encabezado
+                org.apache.poi.ss.usermodel.Row headerRow = sheet.getRow(0);
+                String encabezadoEsperado = "titulo,autor,idioma,fechaNacimiento,fechaFallecimiento,descargas";
+                StringBuilder encabezadoArchivo = new StringBuilder();
+                for (int c = 0; c < columnasEsperadas; c++) {
+                    if (c > 0) encabezadoArchivo.append(",");
+                    encabezadoArchivo.append(headerRow.getCell(c).getStringCellValue().replaceAll("\\s+", ""));
+                }
+                if (!encabezadoArchivo.toString().equalsIgnoreCase(encabezadoEsperado)) {
+                    Alert err = new Alert(Alert.AlertType.ERROR, "El archivo Excel no tiene el encabezado correcto.\nSe espera: " + encabezadoEsperado);
+                    err.setTitle("Error de formato");
+                    err.showAndWait();
+                    workbook.close();
+                    return;
+                }
+                for (int i = 1; i <= sheet.getLastRowNum(); i++) { // Saltar encabezado
+                    org.apache.poi.ss.usermodel.Row row = sheet.getRow(i);
+                    if (row == null || row.getPhysicalNumberOfCells() != columnasEsperadas) continue;
+                    String titulo = row.getCell(0).getStringCellValue();
+                    String autorNombre = row.getCell(1).getStringCellValue();
+                    String idiomaLibro = row.getCell(2).getStringCellValue();
+                    Integer fechaNacimiento = null;
+                    Integer fechaFallecimiento = null;
+                    try { fechaNacimiento = row.getCell(3) == null ? null : (int) row.getCell(3).getNumericCellValue(); } catch (Exception ignored) {}
+                    try { fechaFallecimiento = row.getCell(4) == null ? null : (int) row.getCell(4).getNumericCellValue(); } catch (Exception ignored) {}
+                    int descargas = 0;
+                    try { descargas = row.getCell(5) == null ? 0 : (int) row.getCell(5).getNumericCellValue(); } catch (Exception ignored) {}
+                    final Integer fnac = fechaNacimiento;
+                    final Integer ffalle = fechaFallecimiento;
+                    Optional<Autor> autorOpt = autorRepository.findByNombre(autorNombre);
+                    Autor autor;
+                    if (autorOpt.isPresent()) {
+                        autor = autorOpt.get();
+                        if (fnac != null) autor.setFechaNacimiento(fnac);
+                        if (ffalle != null) autor.setFechaFallecimiento(ffalle);
+                        autorRepository.save(autor);
+                    } else {
+                        autor = new Autor();
+                        autor.setNombre(autorNombre);
+                        autor.setFechaNacimiento(fnac);
+                        autor.setFechaFallecimiento(ffalle);
+                        autor = autorRepository.save(autor);
+                    }
+                    // Normalización para comparación de duplicados (Excel)
+                    String tituloNorm = normalizar(titulo);
+                    String autorNorm = normalizar(autorNombre);
+                    boolean existe = libroRepository.findAll().stream()
+                            .anyMatch(l -> normalizar(l.getTitulo()).equals(tituloNorm)
+                                    && normalizar(l.getAutor().getNombre()).equals(autorNorm)
+                                    && normalizar(l.getIdioma()).equals(normalizar(idiomaLibro)));
+                    if (existe) {
+                        totalDuplicados++;
+                        continue;
+                    }
+                    Libro libro = new Libro();
+                    libro.setTitulo(titulo);
+                    libro.setAutor(autor);
+                    libro.setIdioma(idiomaLibro);
+                    libro.setNumeroDescargas(descargas);
+                    librosImportados.add(libro);
+                    totalLeidos++;
+                }
+                libroRepository.saveAll(librosImportados);
+                workbook.close();
+                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Importación Excel exitosa: " + totalLeidos + " libros importados. " + totalDuplicados + " duplicados ignorados.");
+                ok.setTitle("Éxito");
+                ok.showAndWait();
+            } catch (Exception ex) {
+                Alert err = new Alert(Alert.AlertType.ERROR, "Error al importar Excel: " + ex.getMessage());
+                err.setTitle("Error");
+                err.showAndWait();
+            }
         });
 
         // Banner central
