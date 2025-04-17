@@ -13,10 +13,15 @@ public class FavoritoLibro {
     @JoinColumn(name = "libro_id", unique = true, nullable = false)
     private Libro libro;
 
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
+
     public FavoritoLibro() {}
 
-    public FavoritoLibro(Libro libro) {
+    public FavoritoLibro(Libro libro, Usuario usuario) {
         this.libro = libro;
+        this.usuario = usuario;
     }
 
     public Long getId() {
@@ -29,5 +34,13 @@ public class FavoritoLibro {
 
     public void setLibro(Libro libro) {
         this.libro = libro;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

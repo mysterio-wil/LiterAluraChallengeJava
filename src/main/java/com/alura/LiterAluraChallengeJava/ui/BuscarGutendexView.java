@@ -2,6 +2,8 @@ package com.alura.LiterAluraChallengeJava.ui;
 
 import com.alura.LiterAluraChallengeJava.gutendex.GutendexService;
 import com.alura.LiterAluraChallengeJava.gutendex.LibroGutendexDTO;
+import com.alura.LiterAluraChallengeJava.model.Usuario;
+import com.alura.LiterAluraChallengeJava.repository.UsuarioRepository;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,6 +28,9 @@ public class BuscarGutendexView {
     @Autowired
     private MenuPrincipalView menuPrincipalView;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     public void mostrar(Stage stage) {
         Label lblBuscar = new Label("Buscar libro por título:");
         TextField txtBuscar = new TextField();
@@ -37,9 +42,6 @@ public class BuscarGutendexView {
         Button btnBuscar = new Button("Buscar en Gutendex");
         Button btnImportar = new Button("Importar a base de datos");
         Button btnVolver = new Button("Volver");
-
-        Label lblMensaje = new Label();
-        lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px;");
 
         TableView<LibroGutendexDTO> tablaResultados = new TableView<>();
         TableColumn<LibroGutendexDTO, String> colTitulo = new TableColumn<>("Título");
@@ -53,6 +55,85 @@ public class BuscarGutendexView {
         tablaResultados.getColumns().addAll(colTitulo, colAutor, colIdioma, colDescargas);
         tablaResultados.setPrefHeight(180);
 
+        Label lblMensaje = new Label();
+        lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+        Runnable limpiarMensaje = () -> Platform.runLater(() -> lblMensaje.setText(""));
+
+        Button btnFavorito = new Button("Agregar a favoritos");
+        btnFavorito.setOnAction(ev -> {
+            Platform.runLater(() -> lblMensaje.setText("Intentando agregar a favoritos..."));
+            new Thread(() -> {
+                try {
+                    LibroGutendexDTO libroSeleccionado = tablaResultados.getSelectionModel().getSelectedItem();
+                    if (libroSeleccionado == null) {
+                        Platform.runLater(() -> {
+                            lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                            lblMensaje.setText("Por favor selecciona un libro de la tabla.");
+                        });
+                        return;
+                    }
+                    var libroRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
+                        com.alura.LiterAluraChallengeJava.repository.LibroRepository.class);
+                    var autorRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
+                        com.alura.LiterAluraChallengeJava.repository.AutorRepository.class);
+                    var favoritoRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
+                        com.alura.LiterAluraChallengeJava.repository.FavoritoLibroRepository.class);
+                    String nombreAutor = libroSeleccionado.getAutores();
+                    var autorOpt = autorRepo.findByNombre(nombreAutor);
+                    if (autorOpt.isEmpty()) {
+                        Platform.runLater(() -> {
+                            lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                            lblMensaje.setText("Primero importa el libro a la base de datos antes de agregarlo a favoritos.");
+                        });
+                        return;
+                    }
+                    var autor = autorOpt.get();
+                    var libroOpt = libroRepo.findByTituloAndAutorNombreAndIdiomaAndNumeroDescargas(
+                        libroSeleccionado.getTitulo(),
+                        libroSeleccionado.getAutores(),
+                        libroSeleccionado.getIdioma(),
+                        libroSeleccionado.getDescargas()
+                    );
+                    if (libroOpt.isEmpty()) {
+                        Platform.runLater(() -> {
+                            lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                            lblMensaje.setText("Primero importa el libro a la base de datos antes de agregarlo a favoritos.");
+                        });
+                        return;
+                    }
+                    var libro = libroOpt.get();
+                    boolean yaEsFavorito = favoritoRepo.findByLibro(libro).isPresent();
+                    if (yaEsFavorito) {
+                        Platform.runLater(() -> {
+                            lblMensaje.setStyle("-fx-text-fill: #006400; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                            lblMensaje.setText("Este libro ya está en favoritos.");
+                        });
+                        return;
+                    }
+                    // Obtener usuario por defecto
+                    Usuario usuarioDefault = usuarioRepository.findByNombre("default");
+                    if (usuarioDefault == null) {
+                        usuarioDefault = usuarioRepository.save(new Usuario("default"));
+                    }
+                    com.alura.LiterAluraChallengeJava.model.FavoritoLibro favorito = new com.alura.LiterAluraChallengeJava.model.FavoritoLibro(libro, usuarioDefault);
+                    favoritoRepo.save(favorito);
+                    Platform.runLater(() -> {
+                        lblMensaje.setStyle("-fx-text-fill: #006400; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                        lblMensaje.setText("Añadido con éxito");
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    Platform.runLater(() -> {
+                        lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                        lblMensaje.setText("Error: " + ex.getMessage());
+                    });
+                } finally {
+                    try { Thread.sleep(5000); } catch (InterruptedException ignored) {}
+                    limpiarMensaje.run();
+                }
+            }).start();
+        });
+
         GridPane form = new GridPane();
         form.setHgap(10);
         form.setVgap(10);
@@ -63,7 +144,7 @@ public class BuscarGutendexView {
         form.add(lblIdioma, 0, 2);
         form.add(txtIdioma, 1, 2);
 
-        HBox botones = new HBox(10, btnBuscar, btnImportar, btnVolver);
+        HBox botones = new HBox(10, btnBuscar, btnImportar, btnFavorito, btnVolver);
         botones.setAlignment(Pos.CENTER);
 
         VBox vbox = new VBox(20, form, botones, lblMensaje, tablaResultados);
@@ -100,43 +181,53 @@ public class BuscarGutendexView {
         });
 
         btnImportar.setOnAction(e -> {
-            LibroGutendexDTO seleccionado = tablaResultados.getSelectionModel().getSelectedItem();
-            if (seleccionado == null) {
-                lblMensaje.setText("Seleccione un libro para importar.");
+            LibroGutendexDTO libroSeleccionado = tablaResultados.getSelectionModel().getSelectedItem();
+            if (libroSeleccionado == null) {
+                lblMensaje.setStyle("-fx-text-fill: #B22222; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                lblMensaje.setText("Por favor selecciona un libro de la tabla.");
                 return;
             }
             lblMensaje.setText("");
             btnImportar.setDisable(true);
             new Thread(() -> {
                 try {
-                    // Obtener repositorios desde Spring
                     var libroRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
                         com.alura.LiterAluraChallengeJava.repository.LibroRepository.class);
                     var autorRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
                         com.alura.LiterAluraChallengeJava.repository.AutorRepository.class);
-                    // Buscar o crear autor
-                    String nombreAutor = seleccionado.getAutores();
-                    com.alura.LiterAluraChallengeJava.model.Autor autor = autorRepo.findByNombre(nombreAutor)
-                        .orElseGet(() -> autorRepo.save(new com.alura.LiterAluraChallengeJava.model.Autor(nombreAutor, null, null)));
-                    // Buscar si ya existe el libro
-                    boolean existe = libroRepo.findByTituloYAutor(seleccionado.getTitulo(), nombreAutor).isPresent();
-                    if (existe) {
+
+                    // --- Normalización de campos para evitar duplicados ---
+                    String tituloNorm = libroSeleccionado.getTitulo().trim().toLowerCase();
+                    String idiomaNorm = libroSeleccionado.getIdioma().trim().toLowerCase();
+                    String nombreAutorNorm = libroSeleccionado.getAutores().trim().toLowerCase();
+
+                    // Buscar autor normalizado
+                    com.alura.LiterAluraChallengeJava.model.Autor autor = autorRepo.findByNombre(nombreAutorNorm)
+                        .orElseGet(() -> autorRepo.save(new com.alura.LiterAluraChallengeJava.model.Autor(nombreAutorNorm, null, null)));
+
+                    // Buscar libro por entidad Autor y campos normalizados
+                    var libroOpt = libroRepo.findByTituloAndAutorAndIdioma(tituloNorm, autor, idiomaNorm);
+                    if (libroOpt.isPresent()) {
+                        // Si ya existe, actualiza descargas si lo deseas
+                        com.alura.LiterAluraChallengeJava.model.Libro libroExistente = libroOpt.get();
+                        libroExistente.setNumeroDescargas(libroSeleccionado.getDescargas());
+                        libroRepo.save(libroExistente);
                         Platform.runLater(() -> {
-                            lblMensaje.setText("El libro ya existe en la base de datos.");
+                            lblMensaje.setText("El libro ya existe. Se actualizó el número de descargas.");
                             btnImportar.setDisable(false);
                         });
                         return;
                     }
-                    // Crear y guardar libro
+                    // Si no existe, crea uno nuevo
                     com.alura.LiterAluraChallengeJava.model.Libro libro = new com.alura.LiterAluraChallengeJava.model.Libro(
-                        seleccionado.getTitulo(),
-                        seleccionado.getIdioma(),
-                        seleccionado.getDescargas(),
+                        tituloNorm,
+                        idiomaNorm,
+                        libroSeleccionado.getDescargas(),
                         autor
                     );
                     libroRepo.save(libro);
                     Platform.runLater(() -> {
-                        lblMensaje.setStyle("-fx-text-fill: green; -fx-font-size: 12px;");
+                        lblMensaje.setStyle("-fx-text-fill: #006400; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
                         lblMensaje.setText("Libro importado correctamente.");
                         btnImportar.setDisable(false);
                     });

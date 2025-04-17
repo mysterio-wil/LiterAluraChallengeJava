@@ -6,9 +6,11 @@ import com.alura.LiterAluraChallengeJava.model.DatosAutor;
 import com.alura.LiterAluraChallengeJava.model.DatosLibros;
 import com.alura.LiterAluraChallengeJava.model.FavoritoLibro;
 import com.alura.LiterAluraChallengeJava.model.Libro;
+import com.alura.LiterAluraChallengeJava.model.Usuario;
 import com.alura.LiterAluraChallengeJava.repository.AutorRepository;
 import com.alura.LiterAluraChallengeJava.repository.FavoritoLibroRepository;
 import com.alura.LiterAluraChallengeJava.repository.LibroRepository;
+import com.alura.LiterAluraChallengeJava.repository.UsuarioRepository;
 import com.alura.LiterAluraChallengeJava.service.ConsumoAPI;
 import com.alura.LiterAluraChallengeJava.service.ConvierteDatos;
 import com.alura.LiterAluraChallengeJava.service.EstadisticasService;
@@ -368,12 +370,17 @@ public class Principal {
             return;
         }
         Libro libro = libroOpt.get();
+        UsuarioRepository usuarioRepo = com.alura.LiterAluraChallengeJava.LiterAluraChallengeJavaApplication.getAppContext().getBean(UsuarioRepository.class);
+        Usuario usuarioDefault = usuarioRepo.findByNombre("default");
+        if (usuarioDefault == null) {
+            usuarioDefault = usuarioRepo.save(new Usuario("default"));
+        }
         Optional<FavoritoLibro> favOpt = favoritoLibroRepository.findByLibro(libro);
         if (favOpt.isPresent()) {
             favoritoLibroRepository.deleteByLibro(libro);
             System.out.println("Libro desmarcado como favorito.");
         } else {
-            favoritoLibroRepository.save(new FavoritoLibro(libro));
+            favoritoLibroRepository.save(new FavoritoLibro(libro, usuarioDefault));
             System.out.println("Libro marcado como favorito.");
         }
     }

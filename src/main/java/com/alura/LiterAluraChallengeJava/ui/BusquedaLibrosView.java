@@ -1,6 +1,8 @@
 package com.alura.LiterAluraChallengeJava.ui;
 
 import com.alura.LiterAluraChallengeJava.model.Libro;
+import com.alura.LiterAluraChallengeJava.model.Usuario;
+import com.alura.LiterAluraChallengeJava.repository.UsuarioRepository;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -20,6 +22,8 @@ import java.util.List;
 public class BusquedaLibrosView {
     @Autowired
     private BusquedaLibrosController controller;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     public void mostrar(Stage stage) {
         Label lblTitulo = new Label("Título:");
@@ -46,7 +50,8 @@ public class BusquedaLibrosView {
 
         // Mensaje de feedback
         Label lblMensaje = new Label();
-        lblMensaje.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+        lblMensaje.setStyle("-fx-text-fill: red; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+        Runnable limpiarMensaje = () -> javafx.application.Platform.runLater(() -> lblMensaje.setText(""));
 
         btnBuscar.setOnAction(e -> {
             String titulo = txtTitulo.getText();
@@ -75,6 +80,54 @@ public class BusquedaLibrosView {
             menu.mostrar(stage);
         });
 
+        // Botón para agregar a favoritos
+        Button btnFavorito = new Button("Agregar a favoritos");
+        btnFavorito.setOnAction(ev -> {
+            javafx.application.Platform.runLater(() -> lblMensaje.setText("Intentando agregar a favoritos..."));
+            new Thread(() -> {
+                try {
+                    Libro libroSeleccionado = tablaResultados.getSelectionModel().getSelectedItem();
+                    if (libroSeleccionado == null) {
+                        javafx.application.Platform.runLater(() -> {
+                            lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                            lblMensaje.setText("Selecciona un libro para agregar a favoritos.");
+                        });
+                        return;
+                    }
+                    var favoritoRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
+                        com.alura.LiterAluraChallengeJava.repository.FavoritoLibroRepository.class);
+                    // Obtener usuario por defecto
+                    Usuario usuarioDefault = usuarioRepository.findByNombre("default");
+                    if (usuarioDefault == null) {
+                        usuarioDefault = usuarioRepository.save(new Usuario("default"));
+                    }
+                    boolean yaEsFavorito = favoritoRepo.findByLibroAndUsuario(libroSeleccionado, usuarioDefault).isPresent();
+                    if (yaEsFavorito) {
+                        javafx.application.Platform.runLater(() -> {
+                            lblMensaje.setStyle("-fx-text-fill: #006400; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                            lblMensaje.setText("Este libro ya está en favoritos.");
+                        });
+                        return;
+                    }
+                    com.alura.LiterAluraChallengeJava.model.FavoritoLibro favorito = new com.alura.LiterAluraChallengeJava.model.FavoritoLibro(libroSeleccionado, usuarioDefault);
+                    favoritoRepo.save(favorito);
+                    javafx.application.Platform.runLater(() -> {
+                        lblMensaje.setStyle("-fx-text-fill: #006400; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                        lblMensaje.setText("Añadido con éxito");
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    javafx.application.Platform.runLater(() -> {
+                        lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                        lblMensaje.setText("Error: " + ex.getMessage());
+                    });
+                } finally {
+                    try { Thread.sleep(5000); } catch (InterruptedException ignored) {}
+                    limpiarMensaje.run();
+                }
+            }).start();
+        });
+
         GridPane form = new GridPane();
         form.setAlignment(Pos.CENTER);
         form.setHgap(10);
@@ -86,7 +139,7 @@ public class BusquedaLibrosView {
         form.add(txtAutor, 1, 1);
         form.add(lblIdioma, 0, 2);
         form.add(txtIdioma, 1, 2);
-        HBox botones = new HBox(10, btnBuscar, btnVolver);
+        HBox botones = new HBox(10, btnBuscar, btnVolver, btnFavorito);
         botones.setAlignment(Pos.CENTER);
         VBox vbox = new VBox(20, form, botones, lblMensaje, tablaResultados);
         vbox.setAlignment(Pos.TOP_CENTER);
@@ -120,7 +173,9 @@ public class BusquedaLibrosView {
                 data.getValue().getNumeroDescargas() != null ? data.getValue().getNumeroDescargas() : 0).asObject());
         tablaResultados.getColumns().addAll(colTitulo, colAutor, colIdioma, colDescargas);
         Label lblMensaje = new Label();
-        lblMensaje.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
+        lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+        Runnable limpiarMensaje = () -> javafx.application.Platform.runLater(() -> lblMensaje.setText(""));
+
         btnBuscar.setOnAction(e -> {
             String titulo = txtTitulo.getText();
             String autor = txtAutor.getText();
@@ -142,6 +197,54 @@ public class BusquedaLibrosView {
             ObservableList<Libro> data = FXCollections.observableArrayList(resultados);
             tablaResultados.setItems(data);
         });
+        // Botón para agregar a favoritos
+        Button btnFavorito = new Button("Agregar a favoritos");
+        btnFavorito.setOnAction(ev -> {
+            javafx.application.Platform.runLater(() -> lblMensaje.setText("Intentando agregar a favoritos..."));
+            new Thread(() -> {
+                try {
+                    Libro libroSeleccionado = tablaResultados.getSelectionModel().getSelectedItem();
+                    if (libroSeleccionado == null) {
+                        javafx.application.Platform.runLater(() -> {
+                            lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                            lblMensaje.setText("Selecciona un libro para agregar a favoritos.");
+                        });
+                        return;
+                    }
+                    var favoritoRepo = com.alura.LiterAluraChallengeJava.SpringContextProvider.getBean(
+                        com.alura.LiterAluraChallengeJava.repository.FavoritoLibroRepository.class);
+                    // Obtener usuario por defecto
+                    Usuario usuarioDefault = usuarioRepository.findByNombre("default");
+                    if (usuarioDefault == null) {
+                        usuarioDefault = usuarioRepository.save(new Usuario("default"));
+                    }
+                    boolean yaEsFavorito = favoritoRepo.findByLibroAndUsuario(libroSeleccionado, usuarioDefault).isPresent();
+                    if (yaEsFavorito) {
+                        javafx.application.Platform.runLater(() -> {
+                            lblMensaje.setStyle("-fx-text-fill: #006400; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                            lblMensaje.setText("Este libro ya está en favoritos.");
+                        });
+                        return;
+                    }
+                    com.alura.LiterAluraChallengeJava.model.FavoritoLibro favorito = new com.alura.LiterAluraChallengeJava.model.FavoritoLibro(libroSeleccionado, usuarioDefault);
+                    favoritoRepo.save(favorito);
+                    javafx.application.Platform.runLater(() -> {
+                        lblMensaje.setStyle("-fx-text-fill: #006400; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                        lblMensaje.setText("Añadido con éxito");
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    javafx.application.Platform.runLater(() -> {
+                        lblMensaje.setStyle("-fx-text-fill: #c00; -fx-font-size: 12px; -fx-padding: 8 0 0 0;");
+                        lblMensaje.setText("Error: " + ex.getMessage());
+                    });
+                } finally {
+                    try { Thread.sleep(5000); } catch (InterruptedException ignored) {}
+                    limpiarMensaje.run();
+                }
+            }).start();
+        });
+
         GridPane form = new GridPane();
         form.setAlignment(Pos.CENTER);
         form.setHgap(10);
@@ -153,7 +256,7 @@ public class BusquedaLibrosView {
         form.add(txtAutor, 1, 1);
         form.add(lblIdioma, 0, 2);
         form.add(txtIdioma, 1, 2);
-        HBox botones = new HBox(10, btnBuscar);
+        HBox botones = new HBox(10, btnBuscar, btnFavorito);
         botones.setAlignment(Pos.CENTER);
         VBox vbox = new VBox(20, form, botones, lblMensaje, tablaResultados);
         vbox.setAlignment(Pos.TOP_CENTER);

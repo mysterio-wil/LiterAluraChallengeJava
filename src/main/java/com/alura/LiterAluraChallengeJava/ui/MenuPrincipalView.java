@@ -20,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.concurrent.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,9 +32,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.opencsv.CSVReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class MenuPrincipalView {
@@ -60,7 +66,7 @@ public class MenuPrincipalView {
         MenuBar menuBar = new MenuBar();
         Menu menuArchivo = new Menu("Archivo");
         MenuItem salir = new MenuItem("Salir");
-        salir.setOnAction(e -> {
+        salir.setOnAction(evSalir -> {
             stage.close();
             javafx.application.Platform.exit();
             System.exit(0);
@@ -122,97 +128,141 @@ public class MenuPrincipalView {
         menuBar.getMenus().setAll(menuArchivo, menuHerramientas);
 
         // Handlers para acciones ya implementadas
-        buscarLibros.setOnAction(e -> {
+        buscarLibros.setOnAction(evBuscar -> {
             BusquedaLibrosView busquedaView = SpringContextProvider.getBean(BusquedaLibrosView.class);
             busquedaView.mostrar(stage);
         });
-        importarGutendex.setOnAction(e -> {
+        importarGutendex.setOnAction(evGutendex -> {
             BuscarGutendexView buscarGutendexView = SpringContextProvider.getBean(BuscarGutendexView.class);
             buscarGutendexView.mostrar(stage);
         });
 
         // Handlers para importar desde archivo (CSV y Excel)
-        importarCSV.setOnAction(e -> {
+        importarCSV.setOnAction(evCSV -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleccionar archivo CSV");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
             File file = fileChooser.showOpenDialog(stage);
             if (file == null) return;
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                String line;
+            try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+                AtomicInteger totalLeidos = new AtomicInteger(0);
+                AtomicInteger totalDuplicados = new AtomicInteger(0);
+                AtomicInteger totalErrores = new AtomicInteger(0);
+                javafx.stage.Stage progressStage = new javafx.stage.Stage();
+                progressStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+                progressStage.setTitle("Importando libros...");
+                javafx.scene.control.ProgressBar progressBar = new javafx.scene.control.ProgressBar(0);
+                javafx.scene.control.Label progressLabel = new javafx.scene.control.Label("Iniciando importación...");
+                javafx.scene.control.ListView<String> librosListView = new javafx.scene.control.ListView<>();
+                librosListView.setPrefHeight(200);
+                javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(10, progressLabel, progressBar, librosListView);
+                vbox.setStyle("-fx-padding: 20; -fx-min-width: 400px; -fx-min-height: 300px;");
+                progressStage.setScene(new javafx.scene.Scene(vbox));
+                progressStage.setResizable(false);
+                progressStage.show();
+                // Lee todas las líneas
+                java.util.List<String[]> todasLasLineas = new java.util.ArrayList<>();
+                String[] parts;
                 boolean firstLine = true;
-                int columnasEsperadas = 6;
-                int totalLeidos = 0;
-                int totalDuplicados = 0;
-                List<Libro> librosImportados = new ArrayList<>();
-                // Validar encabezado
-                String encabezado = br.readLine();
-                String encabezadoEsperado = "titulo,autor,idioma,fechaNacimiento,fechaFallecimiento,descargas";
-                if (encabezado == null || !encabezado.replaceAll("\\s+", "").equalsIgnoreCase(encabezadoEsperado)) {
-                    Alert err = new Alert(Alert.AlertType.ERROR, "El archivo no tiene el encabezado correcto.\nSe espera: " + encabezadoEsperado);
-                    err.setTitle("Error de formato");
-                    err.showAndWait();
-                    return;
+                while ((parts = reader.readNext()) != null) {
+                    if (firstLine) { firstLine = false; continue; }
+                    todasLasLineas.add(parts);
                 }
-                while ((line = br.readLine()) != null) {
-                    if (line.trim().isEmpty()) continue;
-                    String[] parts = line.split(",");
-                    if (parts.length != columnasEsperadas) continue;
-                    String titulo = parts[0].replaceAll("^\"|\"$", "");
-                    String autorNombre = parts[1].replaceAll("^\"|\"$", "");
-                    String idiomaLibro = parts[2];
-                    Integer fechaNacimiento = null;
-                    Integer fechaFallecimiento = null;
-                    try { fechaNacimiento = parts[3].trim().isEmpty() ? null : Integer.parseInt(parts[3].trim()); } catch (Exception ignored) {}
-                    try { fechaFallecimiento = parts[4].trim().isEmpty() ? null : Integer.parseInt(parts[4].trim()); } catch (Exception ignored) {}
-                    int descargas = 0;
-                    try { descargas = parts[5].trim().isEmpty() ? 0 : Integer.parseInt(parts[5].trim()); } catch (Exception ignored) {}
-                    final Integer fnac = fechaNacimiento;
-                    final Integer ffalle = fechaFallecimiento;
-                    Optional<Autor> autorOpt = autorRepository.findByNombre(autorNombre);
-                    Autor autor;
-                    if (autorOpt.isPresent()) {
-                        autor = autorOpt.get();
-                        if (fnac != null) autor.setFechaNacimiento(fnac);
-                        if (ffalle != null) autor.setFechaFallecimiento(ffalle);
-                        autorRepository.save(autor);
-                    } else {
-                        autor = new Autor();
-                        autor.setNombre(autorNombre);
-                        autor.setFechaNacimiento(fnac);
-                        autor.setFechaFallecimiento(ffalle);
-                        autor = autorRepository.save(autor);
+                int totalFilas = todasLasLineas.size();
+                javafx.concurrent.Task<Void> importTask = new javafx.concurrent.Task<>() {
+                    @Override
+                    protected Void call() {
+                        for (int i = 0; i < totalFilas; i++) {
+                            String[] parts = todasLasLineas.get(i);
+                            if (parts.length != 6) continue;
+                            String titulo = parts[0];
+                            String autorNombre = parts[1];
+                            String idiomaLibro = parts[2];
+                            Integer fechaNacimiento = null;
+                            Integer fechaFallecimiento = null;
+                            try { fechaNacimiento = parts[3].trim().isEmpty() ? null : Integer.parseInt(parts[3].trim()); } catch (Exception ignored) {}
+                            try { fechaFallecimiento = parts[4].trim().isEmpty() ? null : Integer.parseInt(parts[4].trim()); } catch (Exception ignored) {}
+                            int descargas = 0;
+                            try { descargas = parts[5].trim().isEmpty() ? 0 : Integer.parseInt(parts[5].trim()); } catch (Exception ignored) {}
+                            final Integer fnac = fechaNacimiento;
+                            final Integer ffalle = fechaFallecimiento;
+                            Optional<Autor> autorOpt = autorRepository.findByNombre(autorNombre);
+                            Autor autor;
+                            if (autorOpt.isPresent()) {
+                                autor = autorOpt.get();
+                                if (fnac != null) autor.setFechaNacimiento(fnac);
+                                if (ffalle != null) autor.setFechaFallecimiento(ffalle);
+                                autorRepository.save(autor);
+                            } else {
+                                autor = new Autor();
+                                autor.setNombre(autorNombre);
+                                autor.setFechaNacimiento(fnac);
+                                autor.setFechaFallecimiento(ffalle);
+                                autor = autorRepository.save(autor);
+                            }
+                            String tituloNorm = normalizar(titulo);
+                            String autorNorm = normalizar(autorNombre);
+                            boolean existe = libroRepository.findAll().stream()
+                                    .anyMatch(l -> normalizar(l.getTitulo()).equals(tituloNorm)
+                                            && normalizar(l.getAutor().getNombre()).equals(autorNorm)
+                                            && normalizar(l.getIdioma()).equals(normalizar(idiomaLibro)));
+                            if (existe) {
+                                totalDuplicados.incrementAndGet();
+                                final int progress = i + 1;
+                                final String msg = "Duplicado ignorado: " + titulo;
+                                updateProgress(progress, totalFilas);
+                                updateMessage("Importando libro " + progress + " de " + totalFilas);
+                                javafx.application.Platform.runLater(() -> librosListView.getItems().add(msg));
+                                continue;
+                            }
+                            Libro libro = new Libro();
+                            libro.setTitulo(titulo);
+                            libro.setAutor(autor);
+                            libro.setIdioma(idiomaLibro);
+                            libro.setNumeroDescargas(descargas);
+                            try {
+                                libroRepository.save(libro);
+                                totalLeidos.incrementAndGet();
+                                final int progress = i + 1;
+                                final String msg = "Importado: " + titulo;
+                                updateProgress(progress, totalFilas);
+                                updateMessage("Importando libro " + progress + " de " + totalFilas);
+                                javafx.application.Platform.runLater(() -> librosListView.getItems().add(msg));
+                            } catch (org.springframework.dao.DataIntegrityViolationException dupEx) {
+                                totalDuplicados.incrementAndGet();
+                                final int progress = i + 1;
+                                final String msg = "Duplicado ignorado: " + titulo;
+                                updateProgress(progress, totalFilas);
+                                updateMessage("Importando libro " + progress + " de " + totalFilas);
+                                javafx.application.Platform.runLater(() -> librosListView.getItems().add(msg));
+                            } catch (Exception exLibro) {
+                                totalErrores.incrementAndGet();
+                                final int progress = i + 1;
+                                final String msg = "Error: " + titulo;
+                                updateProgress(progress, totalFilas);
+                                updateMessage("Importando libro " + progress + " de " + totalFilas);
+                                javafx.application.Platform.runLater(() -> librosListView.getItems().add(msg));
+                            }
+                        }
+                        return null;
                     }
-                    // Normalización para comparación de duplicados
-                    String tituloNorm = normalizar(titulo);
-                    String autorNorm = normalizar(autorNombre);
-                    boolean existe = libroRepository.findAll().stream()
-                            .anyMatch(l -> normalizar(l.getTitulo()).equals(tituloNorm)
-                                    && normalizar(l.getAutor().getNombre()).equals(autorNorm)
-                                    && normalizar(l.getIdioma()).equals(normalizar(idiomaLibro)));
-                    if (existe) {
-                        totalDuplicados++;
-                        continue;
-                    }
-                    Libro libro = new Libro();
-                    libro.setTitulo(titulo);
-                    libro.setAutor(autor);
-                    libro.setIdioma(idiomaLibro);
-                    libro.setNumeroDescargas(descargas);
-                    librosImportados.add(libro);
-                    totalLeidos++;
-                }
-                libroRepository.saveAll(librosImportados);
-                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Importación CSV exitosa: " + totalLeidos + " libros importados. " + totalDuplicados + " duplicados ignorados.");
-                ok.setTitle("Éxito");
-                ok.showAndWait();
+                };
+                progressBar.progressProperty().bind(importTask.progressProperty());
+                progressLabel.textProperty().bind(importTask.messageProperty());
+                importTask.setOnSucceeded(evCSVTask -> {
+                    progressStage.close();
+                    Alert ok = new Alert(Alert.AlertType.INFORMATION, "Importación CSV finalizada: " + totalLeidos.get() + " libros importados. " + totalDuplicados.get() + " duplicados ignorados. " + (totalErrores.get() > 0 ? ("Errores: " + totalErrores.get()) : ""));
+                    ok.setTitle("Éxito");
+                    ok.showAndWait();
+                });
+                new Thread(importTask).start();
             } catch (Exception ex) {
                 Alert err = new Alert(Alert.AlertType.ERROR, "Error al importar CSV: " + ex.getMessage());
                 err.setTitle("Error");
                 err.showAndWait();
             }
         });
-        importarExcel.setOnAction(e -> {
+        importarExcel.setOnAction(evExcel -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleccionar archivo Excel");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"));
@@ -222,76 +272,118 @@ public class MenuPrincipalView {
                 Workbook workbook = new XSSFWorkbook(fis);
                 org.apache.poi.ss.usermodel.Sheet sheet = workbook.getSheetAt(0);
                 int columnasEsperadas = 6;
-                int totalLeidos = 0;
-                int totalDuplicados = 0;
+                AtomicInteger totalLeidos = new AtomicInteger(0);
+                AtomicInteger totalDuplicados = new AtomicInteger(0);
+                AtomicInteger totalErrores = new AtomicInteger(0);
                 List<Libro> librosImportados = new ArrayList<>();
-                // Validar encabezado
-                org.apache.poi.ss.usermodel.Row headerRow = sheet.getRow(0);
-                String encabezadoEsperado = "titulo,autor,idioma,fechaNacimiento,fechaFallecimiento,descargas";
-                StringBuilder encabezadoArchivo = new StringBuilder();
-                for (int c = 0; c < columnasEsperadas; c++) {
-                    if (c > 0) encabezadoArchivo.append(",");
-                    encabezadoArchivo.append(headerRow.getCell(c).getStringCellValue().replaceAll("\\s+", ""));
-                }
-                if (!encabezadoArchivo.toString().equalsIgnoreCase(encabezadoEsperado)) {
-                    Alert err = new Alert(Alert.AlertType.ERROR, "El archivo Excel no tiene el encabezado correcto.\nSe espera: " + encabezadoEsperado);
-                    err.setTitle("Error de formato");
-                    err.showAndWait();
-                    workbook.close();
-                    return;
-                }
-                for (int i = 1; i <= sheet.getLastRowNum(); i++) { // Saltar encabezado
-                    org.apache.poi.ss.usermodel.Row row = sheet.getRow(i);
-                    if (row == null || row.getPhysicalNumberOfCells() != columnasEsperadas) continue;
-                    String titulo = row.getCell(0).getStringCellValue();
-                    String autorNombre = row.getCell(1).getStringCellValue();
-                    String idiomaLibro = row.getCell(2).getStringCellValue();
-                    Integer fechaNacimiento = null;
-                    Integer fechaFallecimiento = null;
-                    try { fechaNacimiento = row.getCell(3) == null ? null : (int) row.getCell(3).getNumericCellValue(); } catch (Exception ignored) {}
-                    try { fechaFallecimiento = row.getCell(4) == null ? null : (int) row.getCell(4).getNumericCellValue(); } catch (Exception ignored) {}
-                    int descargas = 0;
-                    try { descargas = row.getCell(5) == null ? 0 : (int) row.getCell(5).getNumericCellValue(); } catch (Exception ignored) {}
-                    final Integer fnac = fechaNacimiento;
-                    final Integer ffalle = fechaFallecimiento;
-                    Optional<Autor> autorOpt = autorRepository.findByNombre(autorNombre);
-                    Autor autor;
-                    if (autorOpt.isPresent()) {
-                        autor = autorOpt.get();
-                        if (fnac != null) autor.setFechaNacimiento(fnac);
-                        if (ffalle != null) autor.setFechaFallecimiento(ffalle);
-                        autorRepository.save(autor);
-                    } else {
-                        autor = new Autor();
-                        autor.setNombre(autorNombre);
-                        autor.setFechaNacimiento(fnac);
-                        autor.setFechaFallecimiento(ffalle);
-                        autor = autorRepository.save(autor);
+
+                // --- Ventana flotante de progreso usando Task ---
+                javafx.stage.Stage progressStage = new javafx.stage.Stage();
+                progressStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+                progressStage.setTitle("Importando libros...");
+                javafx.scene.control.ProgressBar progressBar = new javafx.scene.control.ProgressBar(0);
+                javafx.scene.control.Label progressLabel = new javafx.scene.control.Label("Iniciando importación...");
+                javafx.scene.control.ListView<String> librosListView = new javafx.scene.control.ListView<>();
+                librosListView.setPrefHeight(200);
+                javafx.scene.layout.VBox vbox = new javafx.scene.layout.VBox(10, progressLabel, progressBar, librosListView);
+                vbox.setStyle("-fx-padding: 20; -fx-min-width: 400px; -fx-min-height: 300px;");
+                progressStage.setScene(new javafx.scene.Scene(vbox));
+                progressStage.setResizable(false);
+                progressStage.show();
+                // --- Fin ventana flotante ---
+
+                // --- Task para importación en segundo plano ---
+                int totalFilas = sheet.getLastRowNum();
+                Task<Void> importTask = new Task<>() {
+                    @Override
+                    protected Void call() {
+                        for (int i = 1; i <= totalFilas; i++) {
+                            org.apache.poi.ss.usermodel.Row row = sheet.getRow(i);
+                            if (row == null || row.getPhysicalNumberOfCells() != columnasEsperadas) continue;
+                            String titulo = row.getCell(0).getStringCellValue();
+                            String autorNombre = row.getCell(1).getStringCellValue();
+                            String idiomaLibro = row.getCell(2).getStringCellValue();
+                            Integer fechaNacimiento = null;
+                            Integer fechaFallecimiento = null;
+                            try { fechaNacimiento = row.getCell(3) == null ? null : (int) row.getCell(3).getNumericCellValue(); } catch (Exception ignored) {}
+                            try { fechaFallecimiento = row.getCell(4) == null ? null : (int) row.getCell(4).getNumericCellValue(); } catch (Exception ignored) {}
+                            int descargas = 0;
+                            try { descargas = row.getCell(5) == null ? 0 : (int) row.getCell(5).getNumericCellValue(); } catch (Exception ignored) {}
+                            final Integer fnac = fechaNacimiento;
+                            final Integer ffalle = fechaFallecimiento;
+                            Optional<Autor> autorOpt = autorRepository.findByNombre(autorNombre);
+                            Autor autor;
+                            if (autorOpt.isPresent()) {
+                                autor = autorOpt.get();
+                                if (fnac != null) autor.setFechaNacimiento(fnac);
+                                if (ffalle != null) autor.setFechaFallecimiento(ffalle);
+                                autorRepository.save(autor);
+                            } else {
+                                autor = new Autor();
+                                autor.setNombre(autorNombre);
+                                autor.setFechaNacimiento(fnac);
+                                autor.setFechaFallecimiento(ffalle);
+                                autor = autorRepository.save(autor);
+                            }
+                            // Normalización para comparación de duplicados (Excel)
+                            String tituloNorm = normalizar(titulo);
+                            String autorNorm = normalizar(autorNombre);
+                            boolean existe = libroRepository.findAll().stream()
+                                    .anyMatch(l -> normalizar(l.getTitulo()).equals(tituloNorm)
+                                            && normalizar(l.getAutor().getNombre()).equals(autorNorm)
+                                            && normalizar(l.getIdioma()).equals(normalizar(idiomaLibro)));
+                            if (existe) {
+                                totalDuplicados.incrementAndGet();
+                                final int progress = i;
+                                final String msg = "Duplicado ignorado: " + titulo;
+                                updateProgress(progress, totalFilas);
+                                updateMessage("Importando libro " + progress + " de " + totalFilas);
+                                javafx.application.Platform.runLater(() -> librosListView.getItems().add(msg));
+                                continue;
+                            }
+                            Libro libro = new Libro();
+                            libro.setTitulo(titulo);
+                            libro.setAutor(autor);
+                            libro.setIdioma(idiomaLibro);
+                            libro.setNumeroDescargas(descargas);
+                            try {
+                                libroRepository.save(libro);
+                                totalLeidos.incrementAndGet();
+                                final int progress = i;
+                                final String msg = "Importado: " + titulo;
+                                updateProgress(progress, totalFilas);
+                                updateMessage("Importando libro " + progress + " de " + totalFilas);
+                                javafx.application.Platform.runLater(() -> librosListView.getItems().add(msg));
+                            } catch (org.springframework.dao.DataIntegrityViolationException dupEx) {
+                                totalDuplicados.incrementAndGet();
+                                final int progress = i;
+                                final String msg = "Duplicado ignorado: " + titulo;
+                                updateProgress(progress, totalFilas);
+                                updateMessage("Importando libro " + progress + " de " + totalFilas);
+                                javafx.application.Platform.runLater(() -> librosListView.getItems().add(msg));
+                            } catch (Exception exLibro) {
+                                totalErrores.incrementAndGet();
+                                final int progress = i;
+                                final String msg = "Error: " + titulo;
+                                updateProgress(progress, totalFilas);
+                                updateMessage("Importando libro " + progress + " de " + totalFilas);
+                                javafx.application.Platform.runLater(() -> librosListView.getItems().add(msg));
+                            }
+                        }
+                        return null;
                     }
-                    // Normalización para comparación de duplicados (Excel)
-                    String tituloNorm = normalizar(titulo);
-                    String autorNorm = normalizar(autorNombre);
-                    boolean existe = libroRepository.findAll().stream()
-                            .anyMatch(l -> normalizar(l.getTitulo()).equals(tituloNorm)
-                                    && normalizar(l.getAutor().getNombre()).equals(autorNorm)
-                                    && normalizar(l.getIdioma()).equals(normalizar(idiomaLibro)));
-                    if (existe) {
-                        totalDuplicados++;
-                        continue;
-                    }
-                    Libro libro = new Libro();
-                    libro.setTitulo(titulo);
-                    libro.setAutor(autor);
-                    libro.setIdioma(idiomaLibro);
-                    libro.setNumeroDescargas(descargas);
-                    librosImportados.add(libro);
-                    totalLeidos++;
-                }
-                libroRepository.saveAll(librosImportados);
-                workbook.close();
-                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Importación Excel exitosa: " + totalLeidos + " libros importados. " + totalDuplicados + " duplicados ignorados.");
-                ok.setTitle("Éxito");
-                ok.showAndWait();
+                };
+                progressBar.progressProperty().bind(importTask.progressProperty());
+                progressLabel.textProperty().bind(importTask.messageProperty());
+                importTask.setOnSucceeded(evExcelTask -> {
+                    progressStage.close();
+                    try { workbook.close(); } catch (Exception ignore) {}
+                    Alert ok = new Alert(Alert.AlertType.INFORMATION, "Importación Excel finalizada: " + totalLeidos.get() + " libros importados. " + totalDuplicados.get() + " duplicados ignorados. " + (totalErrores.get() > 0 ? ("Errores: " + totalErrores.get()) : ""));
+                    ok.setTitle("Éxito");
+                    ok.showAndWait();
+                });
+                new Thread(importTask).start();
+                // --- Fin Task ---
             } catch (Exception ex) {
                 Alert err = new Alert(Alert.AlertType.ERROR, "Error al importar Excel: " + ex.getMessage());
                 err.setTitle("Error");
@@ -300,7 +392,7 @@ public class MenuPrincipalView {
         });
 
         // Handlers para exportar datos (CSV y Excel)
-        exportarCSV.setOnAction(e -> {
+        exportarCSV.setOnAction(evExportCSV -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Guardar libros como CSV");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
@@ -324,7 +416,7 @@ public class MenuPrincipalView {
                 err.showAndWait();
             }
         });
-        exportarExcel.setOnAction(e -> {
+        exportarExcel.setOnAction(evExportExcel -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Guardar libros como Excel");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"));
@@ -344,6 +436,33 @@ public class MenuPrincipalView {
                 ok.showAndWait();
             } catch (Exception ex) {
                 Alert err = new Alert(Alert.AlertType.ERROR, "Error al exportar Excel: " + ex.getMessage());
+                err.setTitle("Error");
+                err.showAndWait();
+            }
+        });
+
+        // Handler para exportar favoritos a CSV
+        exportarFavoritos.setOnAction(evExportFav -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Guardar favoritos como CSV");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
+            File file = fileChooser.showSaveDialog(stage);
+            if (file == null) return;
+            try {
+                var favoritoRepo = SpringContextProvider.getBean(com.alura.LiterAluraChallengeJava.repository.FavoritoLibroRepository.class);
+                var favoritos = favoritoRepo.findAll();
+                if (favoritos.isEmpty()) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "No hay favoritos para exportar.");
+                    alert.setTitle("Exportar favoritos");
+                    alert.showAndWait();
+                    return;
+                }
+                com.alura.LiterAluraChallengeJava.util.ExportarFavoritosUtil.exportarCSV(favoritos, file);
+                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Exportación de favoritos exitosa. Archivo guardado en: " + file.getAbsolutePath());
+                ok.setTitle("Éxito");
+                ok.showAndWait();
+            } catch (Exception ex) {
+                Alert err = new Alert(Alert.AlertType.ERROR, "Error al exportar favoritos: " + ex.getMessage());
                 err.setTitle("Error");
                 err.showAndWait();
             }

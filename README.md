@@ -54,6 +54,11 @@ feat: exportación de libros a CSV y Excel desde la interfaz
 - [x] **Menú principal mejorado:** El menú principal ahora es más limpio (eliminado botón de Favoritos) y utiliza un flujo moderno para la exportación.
 - [x] **Nueva interfaz con cinta de opciones:** La aplicación ahora utiliza una barra de menú superior (MenuBar) y un panel central dinámico. Al iniciar, se muestra la consulta de libros disponibles en la base de datos con filtros rápidos. Todas las demás funcionalidades están accesibles desde la barra de menú.
 - [x] **Pantalla principal minimalista:** Al iniciar, se muestra únicamente un mensaje de bienvenida (“Bienvenidos a LiterAlura”) y el menú superior. Todas las funcionalidades (búsqueda, exportar, importar, etc.) se acceden desde el menú.
+- [x] **Importación de libros desde Excel y CSV** con ventana de progreso en tiempo real, barra de avance y listado de títulos importados, duplicados y errores.
+- [x] **Manejo de archivos CSV robusto:** ahora se soportan títulos y autores con comas y comillas, gracias a la integración de OpenCSV.
+- [x] **Feedback visual:** El usuario ve el avance de la importación y un resumen amigable al finalizar.
+- [x] **Detección y reporte de duplicados y errores** durante la importación, sin detener el proceso.
+- [x] **Dependencia agregada:** OpenCSV 5.7.1 incluida en pom.xml.
 
 ### Pendientes
 - [ ] Implementar sistema de recomendaciones basado en preferencias
@@ -68,7 +73,7 @@ feat: exportación de libros a CSV y Excel desde la interfaz
 ## Instalación
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/LiterAluraChallengeJava.git
+   git clone https://github.com/mysterio-wil/LiterAluraChallengeJava.git
    cd LiterAluraChallengeJava
    ```
 
@@ -126,6 +131,19 @@ Puedes importar libros y autores desde archivos **CSV** o **Excel (.xlsx)** usan
 - Los autores se crean o actualizan automáticamente. Si ya existen, se actualizan los años si vienen en el archivo.
 - No se permiten duplicados: se compara título, autor e idioma (de forma normalizada, ignorando tildes, mayúsculas y espacios).
 - Si el archivo contiene datos inválidos, la fila será ignorada y se notificará al usuario.
+
+## Instrucciones para importar libros desde CSV o Excel
+1. Ve al menú "Herramientas" > "Importar desde archivo" y elige CSV o Excel.
+2. Selecciona el archivo a importar. El proceso mostrará una ventana de progreso.
+3. Al finalizar, verás un resumen de libros importados, duplicados y errores.
+
+**Formato esperado para CSV:**
+```
+titulo,autor,idioma,fechaNacimiento,fechaFallecimiento,descargas
+"Título con, coma","Apellido, Nombre",pt,1900,1980,100
+```
+
+**Nota:** Si tu archivo tiene comillas y comas en los campos, ¡ahora es soportado!
 
 ## Exportación de libros a CSV y Excel
 
@@ -192,6 +210,7 @@ src/
 - Maven 3.9.9
 - JPA/Hibernate
 - Gutendex API
+- OpenCSV 5.7.1
 
 ## Contribución
 Si deseas contribuir al proyecto:

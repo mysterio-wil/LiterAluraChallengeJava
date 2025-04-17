@@ -1,12 +1,16 @@
 package com.alura.LiterAluraChallengeJava.model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.UniqueConstraint;
 
 /**
  * Entidad que representa un libro en la base de datos
  */
 @Entity
-@Table(name = "libros")
+@Table(
+    name = "libros",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"titulo", "autor_id", "idioma"})
+)
 public class Libro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
